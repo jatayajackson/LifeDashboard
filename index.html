@@ -6,71 +6,71 @@
 <title>Studio — Life Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,350;0,9..144,450;0,9..144,550;1,9..144,450&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #F1EEE2;
-    --surface: #FBF9F3;
+    --bg: #F5F6EF;
+    --surface: #FFFFFF;
     --surface-raised: #FFFFFF;
-    --ink: #2B2A25;
-    --ink-soft: #6B6656;
-    --ink-faint: #9B9686;
-    --accent-green: #3F5D4E;
-    --accent-green-soft: #6E8B7C;
-    --accent-green-wash: #E4EAE4;
-    --accent-rust: #C4622D;
-    --accent-rust-wash: #F3E2D5;
-    --accent-mustard: #A97A2E;
-    --accent-mustard-wash: #F0E4CB;
-    --border: #DDD6C3;
-    --border-soft: #E9E4D5;
-    --danger: #A8402C;
-    --shadow: 0 1px 2px rgba(43,42,37,0.06), 0 6px 20px rgba(43,42,37,0.06);
-    --radius: 14px;
-    --radius-sm: 9px;
+    --ink: #2E3529;
+    --ink-soft: #6B7263;
+    --ink-faint: #9CA391;
+    --accent-green: #4F6B47;
+    --accent-green-soft: #7C9473;
+    --accent-green-wash: #E7ECE1;
+    --accent-rust: #C17A54;
+    --accent-rust-wash: #F2E3D6;
+    --accent-mustard: #B98A3E;
+    --accent-mustard-wash: #F1E5CB;
+    --border: #E1E3D5;
+    --border-soft: #ECEEE3;
+    --danger: #B0523A;
+    --shadow: 0 1px 2px rgba(46,53,41,0.04), 0 10px 28px rgba(46,53,41,0.05);
+    --radius: 20px;
+    --radius-sm: 13px;
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #1D1B16;
-      --surface: #262319;
-      --surface-raised: #2E2A1F;
-      --ink: #F1EEE2;
-      --ink-soft: #C9C3B0;
-      --ink-faint: #8A8471;
-      --accent-green: #86AC97;
-      --accent-green-soft: #5C7A68;
-      --accent-green-wash: #2C362F;
-      --accent-rust: #E08A54;
-      --accent-rust-wash: #3B2D22;
-      --accent-mustard: #D9A857;
-      --accent-mustard-wash: #362C1B;
-      --border: #3D3929;
-      --border-soft: #302C20;
-      --danger: #E0725A;
-      --shadow: 0 1px 2px rgba(0,0,0,0.25), 0 6px 24px rgba(0,0,0,0.3);
+      --bg: #1A1D16;
+      --surface: #21251C;
+      --surface-raised: #262A1F;
+      --ink: #EBEDE3;
+      --ink-soft: #BAC0AD;
+      --ink-faint: #7D8471;
+      --accent-green: #9BB68E;
+      --accent-green-soft: #7C9473;
+      --accent-green-wash: #29301F;
+      --accent-rust: #D99468;
+      --accent-rust-wash: #362A20;
+      --accent-mustard: #D9AF66;
+      --accent-mustard-wash: #362B19;
+      --border: #343829;
+      --border-soft: #2A2E20;
+      --danger: #E08262;
+      --shadow: 0 1px 2px rgba(0,0,0,0.2), 0 10px 28px rgba(0,0,0,0.3);
     }
   }
   :root[data-theme="dark"] {
-    --bg: #1D1B16;
-    --surface: #262319;
-    --surface-raised: #2E2A1F;
-    --ink: #F1EEE2;
-    --ink-soft: #C9C3B0;
-    --ink-faint: #8A8471;
-    --accent-green: #86AC97;
-    --accent-green-soft: #5C7A68;
-    --accent-green-wash: #2C362F;
-    --accent-rust: #E08A54;
-    --accent-rust-wash: #3B2D22;
-    --accent-mustard: #D9A857;
-    --accent-mustard-wash: #362C1B;
-    --border: #3D3929;
-    --border-soft: #302C20;
-    --danger: #E0725A;
-    --shadow: 0 1px 2px rgba(0,0,0,0.25), 0 6px 24px rgba(0,0,0,0.3);
+    --bg: #1A1D16;
+    --surface: #21251C;
+    --surface-raised: #262A1F;
+    --ink: #EBEDE3;
+    --ink-soft: #BAC0AD;
+    --ink-faint: #7D8471;
+    --accent-green: #9BB68E;
+    --accent-green-soft: #7C9473;
+    --accent-green-wash: #29301F;
+    --accent-rust: #D99468;
+    --accent-rust-wash: #362A20;
+    --accent-mustard: #D9AF66;
+    --accent-mustard-wash: #362B19;
+    --border: #343829;
+    --border-soft: #2A2E20;
+    --danger: #E08262;
+    --shadow: 0 1px 2px rgba(0,0,0,0.2), 0 10px 28px rgba(0,0,0,0.3);
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
@@ -79,11 +79,11 @@
     margin: 0;
     background: var(--bg);
     color: var(--ink);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
     min-height: 100%;
   }
-  h1, h2, h3, .display { font-family: 'Fraunces', Georgia, serif; }
+  h1, h2, h3, .display { font-family: 'Fraunces', Georgia, serif; font-weight: 450; }
 
   .wrap {
     max-width: 1180px;
@@ -97,18 +97,34 @@
     justify-content: space-between;
     align-items: flex-end;
     gap: 16px;
-    margin-bottom: 28px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: 30px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border-soft);
   }
+  header.top .greet { position: relative; }
   header.top .greet h1 {
     margin: 0;
-    font-size: 32px;
-    font-weight: 500;
+    font-size: 33px;
+    font-weight: 450;
     letter-spacing: -0.01em;
+    position: relative;
+    display: inline-block;
+  }
+  header.top .greet-stroke {
+    display: block;
+    width: 92px;
+    height: 10px;
+    margin-top: 2px;
+  }
+  header.top .greet-stroke path {
+    fill: none;
+    stroke: var(--accent-rust);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    opacity: 0.55;
   }
   header.top .greet p {
-    margin: 4px 0 0;
+    margin: 6px 0 0;
     color: var(--ink-soft);
     font-size: 14px;
   }
@@ -136,6 +152,25 @@
   }
   .banner.show { display: block; }
 
+  .tabbar {
+    display: flex; gap: 6px; margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .tab-btn {
+    font-family: 'Nunito Sans', sans-serif; font-size: 13.5px; font-weight: 600;
+    background: none; border: none; cursor: pointer; color: var(--ink-faint);
+    padding: 9px 4px 12px; margin-right: 18px; position: relative;
+  }
+  .tab-btn::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+    background: var(--accent-green); border-radius: 2px; opacity: 0; transform: scaleX(0.6);
+    transition: opacity .15s ease, transform .15s ease;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--ink); }
+  .tab-btn.active::after { opacity: 1; transform: scaleX(1); }
+  #mealsView { max-width: 900px; }
+
   .grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -148,15 +183,25 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 18px;
+    padding: 20px 20px 18px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     gap: 10px;
     transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
     min-height: 168px;
+    position: relative;
+    overflow: hidden;
   }
-  .card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 20px; right: 20px; height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: var(--card-accent, var(--accent-green-soft));
+    opacity: 0.55;
+  }
+  .card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+  .card:hover::before { opacity: 0.9; }
   .card.dragging { opacity: 0.4; }
   .card.drag-over { outline: 2px dashed var(--accent-green-soft); outline-offset: 3px; }
   .card.span-2 { grid-column: span 2; }
@@ -170,15 +215,15 @@
   .card-title {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 10px;
     font-size: 15px;
     font-weight: 600;
   }
   .card-icon {
-    width: 28px; height: 28px;
-    border-radius: 8px;
+    width: 30px; height: 30px;
+    border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 15px;
+    font-size: 14px;
     flex-shrink: 0;
   }
   .icon-meal { background: var(--accent-rust-wash); color: var(--accent-rust); }
@@ -190,8 +235,8 @@
   .drag-handle { cursor: grab; color: var(--ink-faint); font-size: 14px; padding: 2px 4px; }
   .drag-handle:active { cursor: grabbing; }
 
-  .card-body { flex: 1; font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
-  .card-body strong { color: var(--ink); font-weight: 500; }
+  .card-body { flex: 1; font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+  .card-body strong { color: var(--ink); font-weight: 600; }
   .empty-hint { color: var(--ink-faint); font-style: italic; }
 
   .mini-row { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; }
@@ -242,20 +287,20 @@
   input, textarea, select {
     font-family: inherit; font-size: 13px; color: var(--ink);
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px 10px; width: 100%;
+    border-radius: 10px; padding: 8px 11px; width: 100%;
   }
   input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent-green-soft); outline-offset: 1px; }
-  textarea { resize: vertical; min-height: 44px; font-family: inherit; }
+  textarea { resize: vertical; min-height: 44px; font-family: inherit; border-radius: 14px; }
   button.btn {
-    font-family: inherit; font-size: 13px; font-weight: 500;
-    border-radius: 8px; padding: 8px 14px; cursor: pointer; border: 1px solid transparent;
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    border-radius: 999px; padding: 9px 18px; cursor: pointer; border: 1px solid transparent;
   }
   .btn-primary { background: var(--accent-green); color: #fff; }
   .btn-primary:hover { background: var(--accent-green-soft); }
   .btn-ghost { background: transparent; border-color: var(--border); color: var(--ink); }
   .btn-ghost:hover { background: var(--border-soft); }
-  .btn-danger { background: transparent; color: var(--danger); border-color: transparent; font-size: 12px; padding: 4px 8px; }
-  .btn-danger:hover { text-decoration: underline; }
+  .btn-danger { background: transparent; color: var(--danger); border-color: transparent; font-size: 12px; padding: 4px 8px; border-radius: 999px; }
+  .btn-danger:hover { background: var(--accent-rust-wash); }
   :focus-visible { outline: 2px solid var(--accent-green-soft); outline-offset: 2px; }
 
   /* Meal planner table */
@@ -263,6 +308,26 @@
   .meal-table th { text-align: left; font-size: 11px; color: var(--ink-faint); font-weight: 500; padding: 6px 8px; }
   .meal-table td { padding: 4px 6px; vertical-align: top; }
   .meal-table td input { font-size: 12px; padding: 6px 8px; }
+
+  .meal-photo-add {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 24px; border-radius: 8px; border: 1px dashed var(--border);
+    color: var(--ink-faint); font-size: 12px; cursor: pointer; margin-top: 2px;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .meal-photo-add:hover { border-color: var(--accent-rust); color: var(--accent-rust); }
+  .meal-thumb-wrap { position: relative; margin-top: 2px; }
+  .meal-thumb {
+    width: 100%; height: 46px; object-fit: cover; border-radius: 8px;
+    cursor: pointer; display: block; border: 1px solid var(--border-soft);
+  }
+  .meal-thumb-remove {
+    position: absolute; top: -5px; right: -5px; width: 17px; height: 17px;
+    border-radius: 50%; background: var(--surface-raised); border: 1px solid var(--border);
+    color: var(--ink-faint); font-size: 9px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; padding: 0;
+  }
+  .meal-thumb-remove:hover { color: var(--danger); border-color: var(--danger); }
   .day-label { font-size: 12px; font-weight: 600; padding-top: 10px !important; white-space: nowrap; }
 
   .section-label { font-size: 12px; font-weight: 600; color: var(--ink-soft); margin: 18px 0 8px; text-transform: none; }
@@ -276,24 +341,24 @@
   .add-row input { flex: 1; }
 
   /* Workout */
-  .workout-day { border: 1px solid var(--border-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+  .workout-day { border: 1px solid var(--border-soft); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
   .workout-day-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
   .workout-day-head strong { font-size: 13px; }
 
   /* Kanban */
   .kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
   @media (max-width: 560px) { .kanban { grid-template-columns: 1fr; } }
-  .kanban-col { background: var(--surface); border-radius: 10px; padding: 10px; min-height: 120px; }
+  .kanban-col { background: var(--surface); border-radius: 16px; padding: 10px; min-height: 120px; }
   .kanban-col h4 { margin: 0 0 8px; font-size: 12px; color: var(--ink-soft); font-weight: 600; }
   .kanban-card {
-    background: var(--surface-raised); border: 1px solid var(--border-soft); border-radius: 8px;
+    background: var(--surface-raised); border: 1px solid var(--border-soft); border-radius: 12px;
     padding: 8px 10px; font-size: 12.5px; margin-bottom: 8px; cursor: grab;
   }
   .kanban-card.dragging { opacity: 0.4; }
   .kanban-col.drag-over { outline: 2px dashed var(--accent-green-soft); outline-offset: 2px; }
 
   /* Hobbies */
-  .hobby-item { border: 1px solid var(--border-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+  .hobby-item { border: 1px solid var(--border-soft); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
   .hobby-item-head { display: flex; justify-content: space-between; align-items: center; }
   .hobby-item-head strong { font-size: 13.5px; }
   .hobby-notes { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; white-space: pre-wrap; }
@@ -302,7 +367,7 @@
   .event-row { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border-soft); }
   .event-row:last-child { border-bottom: none; }
   .event-date-badge {
-    background: var(--accent-rust-wash); color: var(--accent-rust); border-radius: 8px;
+    background: var(--accent-rust-wash); color: var(--accent-rust); border-radius: 12px;
     padding: 4px 9px; font-size: 11px; font-weight: 600; white-space: nowrap; flex-shrink: 0;
   }
   .event-info { flex: 1; }
@@ -330,6 +395,7 @@
   <header class="top">
     <div class="greet">
       <h1 id="greetTitle">Studio</h1>
+      <svg class="greet-stroke" viewBox="0 0 92 10" aria-hidden="true"><path d="M2 6.5C18 3 34 2 46 5C58 8 74 7 90 3.5"/></svg>
       <p id="greetDate"></p>
     </div>
     <div class="save-indicator"><span class="save-dot" id="saveDot"></span><span id="saveText">Saved</span></div>
@@ -337,7 +403,15 @@
 
   <div class="banner" id="offlineBanner">Couldn't reach the cloud database — your changes are being saved on this device only until it's back.</div>
 
-  <div class="grid" id="grid"></div>
+  <div class="tabbar" id="tabbar">
+    <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn" data-tab="meals">🍽 Meal Planning</button>
+  </div>
+
+  <div id="dashboardView">
+    <div class="grid" id="grid"></div>
+  </div>
+  <div id="mealsView" style="display:none;"></div>
 </div>
 
 <div class="overlay" id="overlay">
@@ -352,11 +426,11 @@
 
   // ---------- State ----------
   const WIDGET_DEFS = {
-    meals: { title: 'Meal Planning', icon: '🍽', iconClass: 'icon-meal', span: 2 },
-    workout: { title: 'Workout', icon: '🏋', iconClass: 'icon-workout', span: 1 },
-    content: { title: 'Content Creation', icon: '🎬', iconClass: 'icon-content', span: 1 },
-    hobbies: { title: 'Hobbies', icon: '✎', iconClass: 'icon-hobby', span: 1 },
-    calendar: { title: 'My Calendar', icon: '◐', iconClass: 'icon-cal', span: 2 },
+    meals: { title: 'Meal Planning', icon: '🍽', iconClass: 'icon-meal', span: 2, accentVar: '--accent-rust' },
+    workout: { title: 'Workout', icon: '🏋', iconClass: 'icon-workout', span: 1, accentVar: '--accent-green' },
+    content: { title: 'Content Creation', icon: '🎬', iconClass: 'icon-content', span: 1, accentVar: '--accent-mustard' },
+    hobbies: { title: 'Hobbies', icon: '✎', iconClass: 'icon-hobby', span: 1, accentVar: '--accent-green-soft' },
+    calendar: { title: 'My Calendar', icon: '◐', iconClass: 'icon-cal', span: 2, accentVar: '--accent-rust' },
   };
   const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const MEALS_OF_DAY = ['Breakfast','Lunch','Dinner'];
@@ -430,6 +504,7 @@
     order: ['meals','workout','content','hobbies','calendar'],
     meals: {}, weekRecipes: {}, customRecipes: [], groceries: [],
     workoutPlan: {}, workoutLog: {}, content: [], hobbies: [], events: [],
+    mealImages: {},      // { Monday: { Breakfast: 'data:image/jpeg;base64,...' }, ... }
   };
 
   let dbReady = true; // becomes false only if we had to fall back to local-only storage
@@ -446,6 +521,26 @@
   function todayDayName(){
     const idx = new Date().getDay(); // 0=Sun
     return DAYS[(idx+6)%7];
+  }
+  function compressImageFile(file, maxWidth=440, quality=0.72){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const img = new Image();
+        img.onload = ()=>{
+          let w = img.width, h = img.height;
+          if(w > maxWidth){ h = Math.round(h * (maxWidth / w)); w = maxWidth; }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => reject(new Error('Could not read that image'));
+        img.src = reader.result;
+      };
+      reader.onerror = () => reject(new Error('Could not read that file'));
+      reader.readAsDataURL(file);
+    });
   }
   function showToast(msg){
     const t = document.getElementById('toast');
@@ -495,6 +590,9 @@
     lsSet(LS_KEY, JSON.stringify(state));
     setSaveStatus(false);
     renderGrid();
+    if(document.getElementById('mealsView').style.display !== 'none'){
+      renderMealsModal(document.getElementById('mealsView'));
+    }
   }
 
   async function save(){
@@ -534,10 +632,14 @@
       if(!def) return;
       const card = document.createElement('div');
       card.className = 'card' + (def.span===2 ? ' span-2' : '');
+      card.style.setProperty('--card-accent', `var(${def.accentVar})`);
       card.draggable = true;
       card.dataset.key = key;
       card.innerHTML = cardPreviewHtml(key, def);
-      card.addEventListener('click', (e)=>{ if(!e.target.closest('.drag-handle')) openModal(key); });
+      card.addEventListener('click', (e)=>{
+        if(e.target.closest('.drag-handle')) return;
+        if(key==='meals') switchTab('meals'); else openModal(key);
+      });
       card.addEventListener('dragstart', (e)=>{ draggedWidget = key; card.classList.add('dragging'); });
       card.addEventListener('dragend', ()=>{ card.classList.remove('dragging'); document.querySelectorAll('.card').forEach(c=>c.classList.remove('drag-over')); });
       card.addEventListener('dragover', (e)=>{ e.preventDefault(); if(draggedWidget && draggedWidget!==key) card.classList.add('drag-over'); });
@@ -599,7 +701,7 @@
         <span class="drag-handle" title="Drag to reorder">⠿</span>
       </div>
       <div class="card-body">${body}</div>
-      <div class="card-foot"><span>${foot}</span><span class="open-link">Open →</span></div>
+      <div class="card-foot"><span>${foot}</span><span class="open-link">${key==='meals' ? 'Open tab →' : 'Open →'}</span></div>
     `;
   }
 
@@ -641,6 +743,7 @@
   // ---------- Meal Planning ----------
   function renderMealsModal(body){
     let html = `
+      <h2 style="display:flex; align-items:center; gap:10px; margin:0 0 16px;"><span class="card-icon icon-meal">🍽</span>Meal Planning</h2>
       <div class="banner show" style="margin-bottom:14px;">
         Generator is tuned to your preferences: no beef or pork (chicken, fish &amp; shrimp forward), a mix of American, Mediterranean, Mexican and Asian, quick (&lt;30 min) and moderate (30–60 min) recipes, with light repetition across the week.
       </div>
@@ -820,6 +923,7 @@
     const val = (state.meals[day] && state.meals[day][meal]) || '';
     const ref = state.weekRecipes[day] && state.weekRecipes[day][meal];
     const recipe = ref ? resolveRecipe(meal, ref) : null;
+    const photo = state.mealImages[day] && state.mealImages[day][meal];
     let ingredientsHtml = '';
     if(recipe){
       ingredientsHtml = `<div class="hobby-notes" data-ing-panel style="display:none; font-size:11.5px; margin-top:4px;">${recipe.ingredients.map(i=>`${i.qty} ${i.unit} ${i.item}`).join(', ')}</div>`;
@@ -828,6 +932,12 @@
       <textarea data-add-textarea rows="3" placeholder="One ingredient per line, e.g.&#10;2 lb chicken breast&#10;1 cup rice" style="font-size:11.5px;"></textarea>
       <button class="btn btn-primary" data-save-recipe="${day}|${meal}" style="font-size:11px; padding:4px 10px; margin-top:4px;">Save recipe</button>
     </div>`;
+    const photoHtml = photo
+      ? `<div class="meal-thumb-wrap">
+          <img src="${photo}" class="meal-thumb" data-view-photo="${day}|${meal}" alt="${escapeHtml(val)}">
+          <button class="meal-thumb-remove" data-remove-photo="${day}|${meal}" title="Remove photo">✕</button>
+        </div>`
+      : (val ? `<label class="meal-photo-add" title="Add a photo of this dish">📷<input type="file" accept="image/*" data-photo="${day}|${meal}" style="display:none;"></label>` : '');
     return `
       <div style="display:flex; flex-direction:column; gap:3px;">
         <div style="display:flex; gap:3px; align-items:center;">
@@ -836,6 +946,7 @@
           ${recipe ? `<button class="btn-danger" data-info="${day}|${meal}" title="Show ingredients" style="font-size:11px; padding:2px 5px;">ⓘ</button>` : ''}
           ${(!recipe && val) ? `<button class="btn-danger" data-add="${day}|${meal}" title="Add ingredients for grocery list" style="font-size:11px; padding:2px 5px;">+ recipe</button>` : ''}
         </div>
+        ${photoHtml}
         ${ingredientsHtml}
         ${(!recipe && val) ? addFormHtml : ''}
       </div>`;
@@ -853,6 +964,7 @@
         state.meals[day][meal] = inp.value;
         // manual edit — decouple from any previously-linked recipe so grocery aggregation stays accurate
         if(state.weekRecipes[day]) delete state.weekRecipes[day][meal];
+        if(!inp.value.trim() && state.mealImages[day]) delete state.mealImages[day][meal];
         saveDoc('dashboard/meals', state.meals);
         saveDoc('dashboard/weekRecipes', state.weekRecipes);
         refreshMealTable(body);
@@ -913,6 +1025,52 @@
         renderMyRecipesList(body);
       });
     });
+    body.querySelectorAll('[data-photo]').forEach(input=>{
+      input.addEventListener('change', async ()=>{
+        const file = input.files && input.files[0];
+        if(!file) return;
+        const [day, meal] = input.dataset.photo.split('|');
+        try{
+          const dataUrl = await compressImageFile(file);
+          if(!state.mealImages[day]) state.mealImages[day] = {};
+          state.mealImages[day][meal] = dataUrl;
+          saveDoc('dashboard/mealImages', state.mealImages);
+          refreshMealTable(body);
+        } catch(e){ showToast('Could not add that photo'); }
+      });
+    });
+    body.querySelectorAll('[data-remove-photo]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        const [day, meal] = btn.dataset.removePhoto.split('|');
+        if(state.mealImages[day]) delete state.mealImages[day][meal];
+        saveDoc('dashboard/mealImages', state.mealImages);
+        refreshMealTable(body);
+      });
+    });
+    body.querySelectorAll('[data-view-photo]').forEach(img=>{
+      img.addEventListener('click', ()=>{
+        const [day, meal] = img.dataset.viewPhoto.split('|');
+        const src = state.mealImages[day] && state.mealImages[day][meal];
+        if(src) openImageLightbox(src, (state.meals[day]&&state.meals[day][meal])||'');
+      });
+    });
+  }
+
+  function openImageLightbox(src, caption){
+    const overlay = document.getElementById('overlay');
+    const modal = document.getElementById('modal');
+    modal.innerHTML = `
+      <div class="modal-head">
+        <h2 style="font-size:16px;">${escapeHtml(caption)}</h2>
+        <button class="modal-close" id="modalCloseBtn" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body" style="padding:0; display:flex; justify-content:center; background:var(--bg);">
+        <img src="${src}" style="max-width:100%; max-height:70vh; display:block;">
+      </div>`;
+    document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+    overlay.addEventListener('click', overlayClickClose);
+    overlay.classList.add('show');
   }
 
   function assignRandomRecipe(day, meal, excludeKey){
@@ -1204,6 +1362,16 @@
   }
 
   // ---------- Init ----------
+  function switchTab(name){
+    document.querySelectorAll('.tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===name));
+    document.getElementById('dashboardView').style.display = name==='dashboard' ? '' : 'none';
+    document.getElementById('mealsView').style.display = name==='meals' ? '' : 'none';
+    if(name==='meals') renderMealsModal(document.getElementById('mealsView'));
+  }
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> switchTab(btn.dataset.tab));
+  });
+
   greet();
   renderGrid();
   load();
