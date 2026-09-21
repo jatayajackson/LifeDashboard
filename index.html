@@ -328,6 +328,31 @@
     display: flex; align-items: center; justify-content: center; padding: 0;
   }
   .meal-thumb-remove:hover { color: var(--danger); border-color: var(--danger); }
+
+  .week-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 6px; flex-wrap: wrap;
+  }
+  .week-nav-title { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .week-nav-title strong { font-family: 'Fraunces', serif; font-weight: 450; font-size: 17px; }
+  .week-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;
+  }
+  @media (max-width: 760px) { .week-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 460px) { .week-grid { grid-template-columns: 1fr; } }
+  .week-day-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 12px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .week-day-card.is-today { border-color: var(--accent-rust); box-shadow: 0 0 0 1px var(--accent-rust); }
+  .week-day-head { display: flex; flex-direction: column; gap: 1px; padding-bottom: 8px; border-bottom: 1px solid var(--border-soft); }
+  .week-day-dow { font-family: 'Fraunces', serif; font-weight: 450; font-size: 15px; }
+  .week-day-num { font-size: 11.5px; color: var(--ink-faint); }
+  .week-meal-block { display: flex; flex-direction: column; gap: 4px; }
+  .week-meal-label { font-size: 10.5px; font-weight: 700; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+  .week-meal-name { font-size: 12.5px; color: var(--ink); }
+  .week-day-card .meal-thumb { height: 96px; border-radius: 10px; }
+  .week-thumb-readonly { cursor: default; }
   .day-label { font-size: 12px; font-weight: 600; padding-top: 10px !important; white-space: nowrap; }
 
   .section-label { font-size: 12px; font-weight: 600; color: var(--ink-soft); margin: 18px 0 8px; text-transform: none; }
@@ -505,6 +530,8 @@
     meals: {}, weekRecipes: {}, customRecipes: [], groceries: [],
     workoutPlan: {}, workoutLog: {}, content: [], hobbies: [], events: [],
     mealImages: {},      // { Monday: { Breakfast: 'data:image/jpeg;base64,...' }, ... }
+    currentWeekStart: null,  // ISO date (Monday) the live meals/weekRecipes/mealImages represent
+    weekHistory: [],     // [{ weekStart, meals, weekRecipes, mealImages, savedAt }, ...] newest first
   };
 
   let dbReady = true; // becomes false only if we had to fall back to local-only storage
@@ -521,6 +548,35 @@
   function todayDayName(){
     const idx = new Date().getDay(); // 0=Sun
     return DAYS[(idx+6)%7];
+  }
+  function mondayOf(date){
+    const d = new Date(date);
+    const diff = (d.getDay()===0 ? -6 : 1 - d.getDay());
+    d.setDate(d.getDate()+diff);
+    d.setHours(0,0,0,0);
+    return d;
+  }
+  function isoDate(d){ return d.toISOString().slice(0,10); }
+  function ensureCurrentWeekStart(){
+    if(!state.currentWeekStart) state.currentWeekStart = isoDate(mondayOf(new Date()));
+  }
+  function weekDatesFor(weekStartISO){
+    const start = new Date(weekStartISO+'T00:00:00');
+    return DAYS.map((name, i)=>{
+      const d = new Date(start);
+      d.setDate(start.getDate()+i);
+      return { name, date: d, iso: isoDate(d) };
+    });
+  }
+  function fmtDayHeader(d){
+    return { dow: d.toLocaleDateString(undefined,{weekday:'short'}), num: d.toLocaleDateString(undefined,{month:'short', day:'numeric'}) };
+  }
+  function fmtWeekRange(weekStartISO){
+    const dates = weekDatesFor(weekStartISO);
+    const start = dates[0].date, end = dates[6].date;
+    const startStr = start.toLocaleDateString(undefined,{month:'short', day:'numeric'});
+    const endStr = end.toLocaleDateString(undefined, start.getMonth()===end.getMonth() ? {day:'numeric'} : {month:'short', day:'numeric'});
+    return `${startStr} – ${endStr}, ${end.getFullYear()}`;
   }
   function compressImageFile(file, maxWidth=440, quality=0.72){
     return new Promise((resolve, reject)=>{
@@ -588,6 +644,7 @@
       document.getElementById('offlineBanner').classList.add('show');
     }
     lsSet(LS_KEY, JSON.stringify(state));
+    ensureCurrentWeekStart();
     setSaveStatus(false);
     renderGrid();
     if(document.getElementById('mealsView').style.display !== 'none'){
@@ -741,31 +798,26 @@
   document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
 
   // ---------- Meal Planning ----------
+  let mealSubView = 'edit';
+  let weekHistoryIndex = 0; // 0 = live current week; 1+ = state.weekHistory[index-1]
+
   function renderMealsModal(body){
+    ensureCurrentWeekStart();
     let html = `
       <h2 style="display:flex; align-items:center; gap:10px; margin:0 0 16px;"><span class="card-icon icon-meal">🍽</span>Meal Planning</h2>
       <div class="banner show" style="margin-bottom:14px;">
         Generator is tuned to your preferences: no beef or pork (chicken, fish &amp; shrimp forward), a mix of American, Mediterranean, Mexican and Asian, quick (&lt;30 min) and moderate (30–60 min) recipes, with light repetition across the week.
       </div>
-      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
-        <button class="btn btn-primary" id="generateWeekBtn">🎲 Generate full week</button>
-        <button class="btn btn-ghost" id="clearWeekBtn">Clear all</button>
+      <div style="display:flex; gap:8px; margin-bottom:18px;">
+        <button class="btn ${mealSubView==='edit'?'btn-primary':'btn-ghost'}" id="subviewEditBtn">Edit</button>
+        <button class="btn ${mealSubView==='week'?'btn-primary':'btn-ghost'}" id="subviewWeekBtn">Week View</button>
       </div>
-      <div class="section-label">This week</div>
-      <table class="meal-table"><thead><tr><th></th>` +
-      MEALS_OF_DAY.map(m=>`<th>${m}</th>`).join('') + `</tr></thead><tbody>`;
-    DAYS.forEach(day=>{
-      html += `<tr><td class="day-label">${day.slice(0,3)}</td>`;
-      MEALS_OF_DAY.forEach(meal=>{
-        html += `<td>${mealCellHtml(day, meal)}</td>`;
-      });
-      html += `</tr>`;
-    });
-    html += `</tbody></table>`;
-    html += `<div class="section-label">My Recipes</div>
+      <div id="editContainer" style="display:${mealSubView==='edit'?'block':'none'};"></div>
+      <div id="weekViewContainer" style="display:${mealSubView==='week'?'block':'none'};"></div>
+      <div class="section-label">My Recipes</div>
       <p style="font-size:12px; color:var(--ink-soft); margin:-4px 0 8px;">Recipes you've filled in with ingredients — these feed into 🎲 generate and grocery lists automatically.</p>
-      <div id="myRecipesList"></div>`;
-    html += `<div class="section-label">Grocery list</div>
+      <div id="myRecipesList"></div>
+      <div class="section-label">Grocery list</div>
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
         <button class="btn btn-ghost" id="genGroceryBtn">↻ Build list from this week's plan</button>
         <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-soft);">
@@ -776,19 +828,15 @@
       <div class="add-row"><input type="text" id="newGroceryInput" placeholder="Add an item…"><button class="btn btn-primary" id="addGroceryBtn">Add</button></div>`;
     body.innerHTML = html;
 
+    renderEditContainer(body);
+    renderWeekViewContainer(body);
     wireMealCells(body);
     renderGroceryList();
     renderMyRecipesList(body);
     body.querySelector('#addGroceryBtn').addEventListener('click', addGroceryItem);
     body.querySelector('#newGroceryInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') addGroceryItem(); });
-    body.querySelector('#generateWeekBtn').addEventListener('click', ()=>{ generateFullWeek(); refreshMealTable(body); });
-    body.querySelector('#clearWeekBtn').addEventListener('click', ()=>{
-      if(!confirm('Clear this whole week plan?')) return;
-      state.meals = {}; state.weekRecipes = {};
-      saveDoc('dashboard/meals', state.meals);
-      saveDoc('dashboard/weekRecipes', state.weekRecipes);
-      refreshMealTable(body);
-    });
+    body.querySelector('#subviewEditBtn').addEventListener('click', ()=>{ mealSubView='edit'; renderMealsModal(body); });
+    body.querySelector('#subviewWeekBtn').addEventListener('click', ()=>{ mealSubView='week'; renderMealsModal(body); });
     body.querySelector('#genGroceryBtn').addEventListener('click', ()=>{
       const includePantry = body.querySelector('#includePantry').checked;
       buildGroceryFromWeek(includePantry);
@@ -864,20 +912,129 @@
         });
         saveDoc('dashboard/weekRecipes', state.weekRecipes);
         renderMyRecipesList(body);
-        refreshMealTable(body);
+        refreshMealPlanningUI(body);
       });
     });
   }
 
-  function refreshMealTable(body){
-    const table = body.querySelector('.meal-table tbody');
-    table.innerHTML = '';
+  function renderEditContainer(body){
+    const container = body.querySelector('#editContainer');
+    if(!container) return;
+    let html = `
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
+        <button class="btn btn-primary" id="generateWeekBtn">🎲 Generate full week</button>
+        <button class="btn btn-ghost" id="clearWeekBtn">Clear all</button>
+      </div>
+      <div class="section-label">This week</div>
+      <table class="meal-table"><thead><tr><th></th>` +
+      MEALS_OF_DAY.map(m=>`<th>${m}</th>`).join('') + `</tr></thead><tbody>`;
     DAYS.forEach(day=>{
-      const row = document.createElement('tr');
-      row.innerHTML = `<td class="day-label">${day.slice(0,3)}</td>` +
-        MEALS_OF_DAY.map(meal=>`<td>${mealCellHtml(day, meal)}</td>`).join('');
-      table.appendChild(row);
+      html += `<tr><td class="day-label">${day.slice(0,3)}</td>`;
+      MEALS_OF_DAY.forEach(meal=>{
+        html += `<td>${mealCellHtml(day, meal)}</td>`;
+      });
+      html += `</tr>`;
     });
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+    container.querySelector('#generateWeekBtn').addEventListener('click', ()=>{ generateFullWeek(); refreshMealPlanningUI(body); });
+    container.querySelector('#clearWeekBtn').addEventListener('click', ()=>{
+      if(!confirm('Clear this whole week\'s plan? (Photos and links are cleared too — this does not affect saved past weeks.)')) return;
+      state.meals = {}; state.weekRecipes = {}; state.mealImages = {};
+      saveDoc('dashboard/meals', state.meals);
+      saveDoc('dashboard/weekRecipes', state.weekRecipes);
+      saveDoc('dashboard/mealImages', state.mealImages);
+      refreshMealPlanningUI(body);
+    });
+  }
+
+  function weekViewDayCardHtml(day, dateObj, liveMode, snapshot){
+    const h = fmtDayHeader(dateObj);
+    const isToday = liveMode && isoDate(dateObj) === isoDate(new Date());
+    let mealsHtml = '';
+    MEALS_OF_DAY.forEach(meal=>{
+      if(liveMode){
+        mealsHtml += `<div class="week-meal-block"><div class="week-meal-label">${meal}</div>${mealCellHtml(day, meal)}</div>`;
+      } else {
+        const name = (snapshot.meals[day] && snapshot.meals[day][meal]) || '';
+        const photo = snapshot.mealImages && snapshot.mealImages[day] && snapshot.mealImages[day][meal];
+        mealsHtml += `<div class="week-meal-block">
+          <div class="week-meal-label">${meal}</div>
+          ${photo ? `<img src="${photo}" class="meal-thumb week-thumb-readonly" data-lightbox-src="${photo}" data-lightbox-caption="${escapeHtml(name)}" alt="${escapeHtml(name)}" style="cursor:pointer;">` : ''}
+          <div class="week-meal-name">${name ? escapeHtml(name) : '<span class="empty-hint">—</span>'}</div>
+        </div>`;
+      }
+    });
+    return `<div class="week-day-card${isToday ? ' is-today' : ''}">
+      <div class="week-day-head"><span class="week-day-dow">${h.dow}</span><span class="week-day-num">${h.num}</span></div>
+      ${mealsHtml}
+    </div>`;
+  }
+
+  function renderWeekViewContainer(body){
+    const container = body.querySelector('#weekViewContainer');
+    if(!container) return;
+    const isLive = weekHistoryIndex === 0;
+    const weekStartISO = isLive ? state.currentWeekStart : state.weekHistory[weekHistoryIndex-1].weekStart;
+    const snapshot = isLive ? null : state.weekHistory[weekHistoryIndex-1];
+    const dates = weekDatesFor(weekStartISO);
+    const canGoOlder = isLive ? state.weekHistory.length > 0 : weekHistoryIndex < state.weekHistory.length;
+
+    let html = `
+      <div class="week-nav">
+        <button class="btn btn-ghost" id="weekPrevBtn" ${canGoOlder ? '' : 'disabled'}>‹ Older</button>
+        <div class="week-nav-title">
+          <strong>${fmtWeekRange(weekStartISO)}</strong>
+          <span class="pill">${isLive ? 'Current week' : 'Past week · read-only'}</span>
+        </div>
+        <button class="btn btn-ghost" id="weekNextBtn" ${weekHistoryIndex>0 ? '' : 'disabled'}>Newer ›</button>
+      </div>`;
+    if(isLive){
+      html += `<div style="margin-bottom:16px;"><button class="btn btn-ghost" id="saveWeekBtn">💾 Save this week & start a new one</button></div>`;
+    }
+    html += `<div class="week-grid">` + dates.map(d => weekViewDayCardHtml(d.name, d.date, isLive, snapshot)).join('') + `</div>`;
+    container.innerHTML = html;
+
+    container.querySelectorAll('[data-lightbox-src]').forEach(img=>{
+      img.addEventListener('click', ()=> openImageLightbox(img.dataset.lightboxSrc, img.dataset.lightboxCaption||''));
+    });
+
+    container.querySelector('#weekPrevBtn').addEventListener('click', ()=>{
+      if(!canGoOlder) return;
+      weekHistoryIndex += 1;
+      refreshMealPlanningUI(body);
+    });
+    container.querySelector('#weekNextBtn').addEventListener('click', ()=>{
+      if(weekHistoryIndex===0) return;
+      weekHistoryIndex -= 1;
+      refreshMealPlanningUI(body);
+    });
+    if(isLive){
+      container.querySelector('#saveWeekBtn').addEventListener('click', ()=>{
+        if(!confirm('Save this week to history and start a fresh one? Your current meals and photos will move to Past Weeks (read-only), and this week clears for new planning.')) return;
+        state.weekHistory.unshift({
+          weekStart: state.currentWeekStart,
+          meals: state.meals,
+          weekRecipes: state.weekRecipes,
+          mealImages: state.mealImages,
+          savedAt: Date.now(),
+        });
+        if(state.weekHistory.length > 12) state.weekHistory.length = 12;
+        const nextMonday = new Date(state.currentWeekStart+'T00:00:00');
+        nextMonday.setDate(nextMonday.getDate()+7);
+        state.currentWeekStart = isoDate(nextMonday);
+        state.meals = {}; state.weekRecipes = {}; state.mealImages = {};
+        saveDoc('dashboard/all', state);
+        weekHistoryIndex = 0;
+        showToast('Week saved — starting fresh');
+        refreshMealPlanningUI(body);
+      });
+    }
+  }
+
+  function refreshMealPlanningUI(body){
+    renderEditContainer(body);
+    renderWeekViewContainer(body);
     wireMealCells(body);
   }
 
@@ -967,7 +1124,7 @@
         if(!inp.value.trim() && state.mealImages[day]) delete state.mealImages[day][meal];
         saveDoc('dashboard/meals', state.meals);
         saveDoc('dashboard/weekRecipes', state.weekRecipes);
-        refreshMealTable(body);
+        refreshMealPlanningUI(body);
       });
     });
     body.querySelectorAll('[data-dice]').forEach(btn=>{
@@ -976,7 +1133,7 @@
         assignRandomRecipe(day, meal);
         saveDoc('dashboard/meals', state.meals);
         saveDoc('dashboard/weekRecipes', state.weekRecipes);
-        refreshMealTable(body);
+        refreshMealPlanningUI(body);
       });
     });
     body.querySelectorAll('[data-info]').forEach(btn=>{
@@ -1021,7 +1178,7 @@
         state.weekRecipes[day][meal] = { src:'custom', id: recipeRec.id };
         saveDoc('dashboard/weekRecipes', state.weekRecipes);
         showToast('Saved — added to My Recipes');
-        refreshMealTable(body);
+        refreshMealPlanningUI(body);
         renderMyRecipesList(body);
       });
     });
@@ -1035,7 +1192,7 @@
           if(!state.mealImages[day]) state.mealImages[day] = {};
           state.mealImages[day][meal] = dataUrl;
           saveDoc('dashboard/mealImages', state.mealImages);
-          refreshMealTable(body);
+          refreshMealPlanningUI(body);
         } catch(e){ showToast('Could not add that photo'); }
       });
     });
@@ -1045,7 +1202,7 @@
         const [day, meal] = btn.dataset.removePhoto.split('|');
         if(state.mealImages[day]) delete state.mealImages[day][meal];
         saveDoc('dashboard/mealImages', state.mealImages);
-        refreshMealTable(body);
+        refreshMealPlanningUI(body);
       });
     });
     body.querySelectorAll('[data-view-photo]').forEach(img=>{
