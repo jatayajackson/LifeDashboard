@@ -6,7 +6,7 @@
 <title>Studio — Life Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,350;0,9..144,450;0,9..144,550;1,9..144,450&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #F5F6EF;
@@ -83,7 +83,7 @@
     -webkit-font-smoothing: antialiased;
     min-height: 100%;
   }
-  h1, h2, h3, .display { font-family: 'Fraunces', Georgia, serif; font-weight: 450; }
+  h1, h2, h3, .display { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; }
 
   .wrap {
     max-width: 1180px;
@@ -102,19 +102,27 @@
     border-bottom: 1px solid var(--border-soft);
   }
   header.top .greet { position: relative; }
+  header.top .site-wordmark {
+    font-family: 'Alex Brush', cursive;
+    font-size: 44px;
+    line-height: 1;
+    color: var(--accent-rust);
+    margin: 0 0 2px;
+  }
   header.top .greet h1 {
     margin: 0;
-    font-size: 33px;
+    font-size: 18px;
     font-weight: 450;
     letter-spacing: -0.01em;
+    color: var(--ink-soft);
     position: relative;
     display: inline-block;
   }
   header.top .greet-stroke {
     display: block;
-    width: 92px;
-    height: 10px;
-    margin-top: 2px;
+    width: 66px;
+    height: 8px;
+    margin-top: 1px;
   }
   header.top .greet-stroke path {
     fill: none;
@@ -124,9 +132,9 @@
     opacity: 0.55;
   }
   header.top .greet p {
-    margin: 6px 0 0;
-    color: var(--ink-soft);
-    font-size: 14px;
+    margin: 4px 0 0;
+    color: var(--ink-faint);
+    font-size: 13px;
   }
   .save-indicator {
     font-size: 12px;
@@ -155,11 +163,13 @@
   .tabbar {
     display: flex; gap: 6px; margin-bottom: 20px;
     border-bottom: 1px solid var(--border-soft);
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
   }
   .tab-btn {
     font-family: 'Nunito Sans', sans-serif; font-size: 13.5px; font-weight: 600;
     background: none; border: none; cursor: pointer; color: var(--ink-faint);
     padding: 9px 4px 12px; margin-right: 18px; position: relative;
+    white-space: nowrap; flex-shrink: 0;
   }
   .tab-btn::after {
     content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
@@ -334,7 +344,7 @@
     gap: 12px; margin-bottom: 6px; flex-wrap: wrap;
   }
   .week-nav-title { display: flex; align-items: center; gap: 10px; font-size: 14px; }
-  .week-nav-title strong { font-family: 'Fraunces', serif; font-weight: 450; font-size: 17px; }
+  .week-nav-title strong { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 17px; }
   .week-grid {
     display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;
   }
@@ -346,13 +356,59 @@
   }
   .week-day-card.is-today { border-color: var(--accent-rust); box-shadow: 0 0 0 1px var(--accent-rust); }
   .week-day-head { display: flex; flex-direction: column; gap: 1px; padding-bottom: 8px; border-bottom: 1px solid var(--border-soft); }
-  .week-day-dow { font-family: 'Fraunces', serif; font-weight: 450; font-size: 15px; }
+  .week-day-dow { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 15px; }
   .week-day-num { font-size: 11.5px; color: var(--ink-faint); }
   .week-meal-block { display: flex; flex-direction: column; gap: 4px; }
   .week-meal-label { font-size: 10.5px; font-weight: 700; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.04em; }
   .week-meal-name { font-size: 12.5px; color: var(--ink); }
   .week-day-card .meal-thumb { height: 96px; border-radius: 10px; }
   .week-thumb-readonly { cursor: default; }
+
+  .today-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 820px) { .today-grid { grid-template-columns: 1fr; } }
+  .today-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .today-card-head { display: flex; align-items: center; gap: 10px; }
+  .today-card-head strong { font-size: 15px; font-weight: 600; flex: 1; }
+  .today-link { font-size: 12px; padding: 5px 12px; }
+  .today-meal-row { display: flex; align-items: center; gap: 12px; }
+  .today-meal-thumb { width: 52px; height: 52px; border-radius: 12px; object-fit: cover; flex-shrink: 0; cursor: pointer; }
+  .today-meal-thumb-empty {
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+    background: var(--border-soft); color: var(--ink-faint); cursor: default;
+  }
+  .today-meal-label { font-size: 10.5px; font-weight: 700; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+  .today-meal-name { font-size: 13.5px; margin-top: 1px; }
+  .today-workout-focus { font-size: 15px; font-weight: 600; }
+  .today-workout-notes { font-size: 12.5px; color: var(--ink-soft); }
+  .today-done-toggle {
+    display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-soft);
+    margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-soft);
+  }
+  .today-done-toggle input { width: auto; }
+  .today-event-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; }
+
+  .vision-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+  .vision-upload-btn { cursor: pointer; }
+  .vision-board { columns: 3 220px; column-gap: 14px; }
+  @media (max-width: 700px) { .vision-board { columns: 2 150px; } }
+  .vision-item {
+    position: relative; break-inside: avoid; margin-bottom: 14px;
+    border-radius: 16px; overflow: hidden; border: 1px solid var(--border);
+  }
+  .vision-item img { width: 100%; display: block; cursor: pointer; }
+  .vision-remove {
+    position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(20,18,13,0.5); color: #fff; border: none; cursor: pointer; font-size: 11px;
+    display: flex; align-items: center; justify-content: center; padding: 0;
+  }
+  .vision-remove:hover { background: var(--danger); }
+  .vision-empty {
+    border: 2px dashed var(--border); border-radius: var(--radius);
+    padding: 70px 20px; text-align: center; color: var(--ink-faint);
+  }
   .day-label { font-size: 12px; font-weight: 600; padding-top: 10px !important; white-space: nowrap; }
 
   .section-label { font-size: 12px; font-weight: 600; color: var(--ink-soft); margin: 18px 0 8px; text-transform: none; }
@@ -419,6 +475,7 @@
 <div class="wrap">
   <header class="top">
     <div class="greet">
+      <div class="site-wordmark">Jataya's Dashboard</div>
       <h1 id="greetTitle">Studio</h1>
       <svg class="greet-stroke" viewBox="0 0 92 10" aria-hidden="true"><path d="M2 6.5C18 3 34 2 46 5C58 8 74 7 90 3.5"/></svg>
       <p id="greetDate"></p>
@@ -429,11 +486,15 @@
   <div class="banner" id="offlineBanner">Couldn't reach the cloud database — your changes are being saved on this device only until it's back.</div>
 
   <div class="tabbar" id="tabbar">
-    <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn active" data-tab="home">Home</button>
+    <button class="tab-btn" data-tab="today">Today</button>
+    <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="meals">🍽 Meal Planning</button>
   </div>
 
-  <div id="dashboardView">
+  <div id="homeView"></div>
+  <div id="todayView" style="display:none;"></div>
+  <div id="dashboardView" style="display:none;">
     <div class="grid" id="grid"></div>
   </div>
   <div id="mealsView" style="display:none;"></div>
@@ -518,6 +579,10 @@
     content: [],         // [{id,title,status,notes}]
     hobbies: [],         // [{id,name,notes,progress}]
     events: [],          // [{id,title,date,time,notes}]
+    mealImages: {},       // { Monday: { Breakfast: 'data:image/jpeg;base64,...' }, ... }
+    currentWeekStart: null,
+    weekHistory: [],
+    visionBoard: [],      // [{id, src, caption, createdAt}]
   };
 
   const SB_URL = 'https://zijgfuxocscrepwwdynp.supabase.co';
@@ -532,6 +597,7 @@
     mealImages: {},      // { Monday: { Breakfast: 'data:image/jpeg;base64,...' }, ... }
     currentWeekStart: null,  // ISO date (Monday) the live meals/weekRecipes/mealImages represent
     weekHistory: [],     // [{ weekStart, meals, weekRecipes, mealImages, savedAt }, ...] newest first
+    visionBoard: [],     // [{id, src, caption, createdAt}]
   };
 
   let dbReady = true; // becomes false only if we had to fall back to local-only storage
@@ -647,6 +713,12 @@
     ensureCurrentWeekStart();
     setSaveStatus(false);
     renderGrid();
+    if(document.getElementById('homeView').style.display !== 'none'){
+      renderHomeView(document.getElementById('homeView'));
+    }
+    if(document.getElementById('todayView').style.display !== 'none'){
+      renderTodayView(document.getElementById('todayView'));
+    }
     if(document.getElementById('mealsView').style.display !== 'none'){
       renderMealsModal(document.getElementById('mealsView'));
     }
@@ -1519,10 +1591,124 @@
   }
 
   // ---------- Init ----------
+  function renderHomeView(container){
+    const board = state.visionBoard;
+    const boardHtml = board.map(img => `
+        <div class="vision-item">
+          <img src="${img.src}" data-lightbox-src="${img.src}" data-lightbox-caption="${escapeHtml(img.caption||'')}" alt="${escapeHtml(img.caption||'')}">
+          <button class="vision-remove" data-remove-vision="${img.id}" title="Remove">✕</button>
+        </div>`).join('');
+
+    container.innerHTML = `
+      <div class="vision-head">
+        <h2 style="margin:0;">Vision Board</h2>
+        <label class="btn btn-primary vision-upload-btn">+ Add images<input type="file" accept="image/*" multiple id="visionUploadInput" style="display:none;"></label>
+      </div>
+      ${board.length
+        ? `<div class="vision-board" id="visionBoardGrid">${boardHtml}</div>`
+        : `<div class="vision-empty">
+             <p style="font-family:'Playfair Display',serif; font-size:18px; margin:0 0 6px;">Your vision board starts here</p>
+             <p class="empty-hint" style="font-size:12.5px; margin:0;">Add photos, inspiration, goals — whatever you want to see every time you open this.</p>
+           </div>`}
+    `;
+
+    container.querySelectorAll('[data-lightbox-src]').forEach(img=>{
+      img.addEventListener('click', ()=> openImageLightbox(img.dataset.lightboxSrc, img.dataset.lightboxCaption||''));
+    });
+    container.querySelectorAll('[data-remove-vision]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        const id = btn.dataset.removeVision;
+        state.visionBoard = state.visionBoard.filter(v=>v.id!==id);
+        saveDoc('dashboard/visionBoard', state.visionBoard);
+        renderHomeView(container);
+      });
+    });
+    const uploadInput = container.querySelector('#visionUploadInput');
+    uploadInput.addEventListener('change', async ()=>{
+      const files = Array.from(uploadInput.files || []);
+      if(files.length===0) return;
+      for(const file of files){
+        try{
+          const dataUrl = await compressImageFile(file, 700, 0.75);
+          state.visionBoard.push({ id: uid(), src: dataUrl, caption: '', createdAt: Date.now() });
+        } catch(e){ /* skip a file that fails to read */ }
+      }
+      saveDoc('dashboard/visionBoard', state.visionBoard);
+      renderHomeView(container);
+      showToast(files.length>1 ? 'Added to your vision board' : 'Added to your vision board');
+    });
+  }
+
+  function renderTodayView(container){
+    const today = todayDayName();
+    const todayISO = isoDate(new Date());
+    const dateLabel = new Date().toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
+
+    const mealsHtml = MEALS_OF_DAY.map(meal=>{
+      const name = (state.meals[today] && state.meals[today][meal]) || '';
+      const photo = state.mealImages[today] && state.mealImages[today][meal];
+      return `<div class="today-meal-row">
+        ${photo
+          ? `<img src="${photo}" class="today-meal-thumb" data-lightbox-src="${photo}" data-lightbox-caption="${escapeHtml(name)}" alt="${escapeHtml(name)}">`
+          : `<div class="today-meal-thumb today-meal-thumb-empty">🍽</div>`}
+        <div>
+          <div class="today-meal-label">${meal}</div>
+          <div class="today-meal-name">${name ? escapeHtml(name) : '<span class="empty-hint">Not planned</span>'}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    const wPlan = state.workoutPlan[today] || {};
+    const wDone = !!state.workoutLog[today];
+
+    const todaysEvents = state.events.filter(e=> e.date === todayISO);
+    const eventsHtml = todaysEvents.length
+      ? todaysEvents.map(e=>`<div class="today-event-row">${e.time ? `<span class="pill">${fmtTime(e.time)}</span>` : ''}<span>${escapeHtml(e.title)}</span></div>`).join('')
+      : `<p class="empty-hint" style="font-size:12.5px;">Nothing on your calendar today.</p>`;
+
+    container.innerHTML = `
+      <h1 class="display" style="font-size:26px; font-weight:450; margin:0 0 2px;">Today</h1>
+      <p style="color:var(--ink-soft); font-size:14px; margin:0 0 22px;">${dateLabel}</p>
+      <div class="today-grid">
+        <div class="today-card">
+          <div class="today-card-head"><span class="card-icon icon-meal">🍽</span><strong>Meals</strong><button class="btn btn-ghost today-link" id="todayJumpMeals">Edit →</button></div>
+          ${mealsHtml}
+        </div>
+        <div class="today-card">
+          <div class="today-card-head"><span class="card-icon icon-workout">🏋</span><strong>Workout</strong><button class="btn btn-ghost today-link" id="todayJumpWorkout">Open →</button></div>
+          ${wPlan.focus ? `<div class="today-workout-focus">${escapeHtml(wPlan.focus)}</div>${wPlan.notes?`<div class="today-workout-notes">${escapeHtml(wPlan.notes)}</div>`:''}` : `<p class="empty-hint" style="font-size:12.5px;">Nothing planned today.</p>`}
+          <label class="today-done-toggle"><input type="checkbox" id="todayWorkoutDone" ${wDone?'checked':''}> Mark today's workout done</label>
+        </div>
+        <div class="today-card">
+          <div class="today-card-head"><span class="card-icon icon-cal">◐</span><strong>Calendar</strong><button class="btn btn-ghost today-link" id="todayJumpCalendar">Open →</button></div>
+          ${eventsHtml}
+        </div>
+      </div>
+    `;
+
+    container.querySelectorAll('[data-lightbox-src]').forEach(img=>{
+      img.addEventListener('click', ()=> openImageLightbox(img.dataset.lightboxSrc, img.dataset.lightboxCaption||''));
+    });
+    container.querySelector('#todayJumpMeals').addEventListener('click', ()=> switchTab('meals'));
+    container.querySelector('#todayJumpWorkout').addEventListener('click', ()=> openModal('workout'));
+    container.querySelector('#todayJumpCalendar').addEventListener('click', ()=> openModal('calendar'));
+    const doneToggle = container.querySelector('#todayWorkoutDone');
+    doneToggle.addEventListener('change', ()=>{
+      state.workoutLog[today] = doneToggle.checked;
+      saveDoc('dashboard/workoutLog', state.workoutLog);
+      showToast(doneToggle.checked ? "Nice work — logged!" : 'Unmarked');
+    });
+  }
+
   function switchTab(name){
     document.querySelectorAll('.tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===name));
+    document.getElementById('homeView').style.display = name==='home' ? '' : 'none';
+    document.getElementById('todayView').style.display = name==='today' ? '' : 'none';
     document.getElementById('dashboardView').style.display = name==='dashboard' ? '' : 'none';
     document.getElementById('mealsView').style.display = name==='meals' ? '' : 'none';
+    if(name==='home') renderHomeView(document.getElementById('homeView'));
+    if(name==='today') renderTodayView(document.getElementById('todayView'));
     if(name==='meals') renderMealsModal(document.getElementById('mealsView'));
   }
   document.querySelectorAll('.tab-btn').forEach(btn=>{
@@ -1531,6 +1717,7 @@
 
   greet();
   renderGrid();
+  renderHomeView(document.getElementById('homeView'));
   load();
 })();
 </script>
