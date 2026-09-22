@@ -9,23 +9,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #F5F6EF;
+    --bg: #F7F2E8;
+    --bg-deep: #EEE4D0;
     --surface: #FFFFFF;
     --surface-raised: #FFFFFF;
-    --ink: #2E3529;
-    --ink-soft: #6B7263;
-    --ink-faint: #9CA391;
-    --accent-green: #4F6B47;
-    --accent-green-soft: #7C9473;
-    --accent-green-wash: #E7ECE1;
+    --ink: #3A2E22;
+    --ink-soft: #7A6A57;
+    --ink-faint: #A8977F;
+    --accent-green-deep: #4A3423;
+    --accent-green: #6B4A32;
+    --accent-green-soft: #9C7A5C;
+    --accent-green-wash: #EFE4D5;
     --accent-rust: #C17A54;
     --accent-rust-wash: #F2E3D6;
     --accent-mustard: #B98A3E;
     --accent-mustard-wash: #F1E5CB;
-    --border: #E1E3D5;
-    --border-soft: #ECEEE3;
+    --border: #E3D9C8;
+    --border-soft: #EFE8DA;
     --danger: #B0523A;
-    --shadow: 0 1px 2px rgba(46,53,41,0.04), 0 10px 28px rgba(46,53,41,0.05);
+    --shadow: 0 1px 2px rgba(58,46,34,0.05), 0 10px 28px rgba(58,46,34,0.06);
     --radius: 20px;
     --radius-sm: 13px;
     box-sizing: border-box;
@@ -34,41 +36,45 @@
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #1A1D16;
-      --surface: #21251C;
-      --surface-raised: #262A1F;
-      --ink: #EBEDE3;
-      --ink-soft: #BAC0AD;
-      --ink-faint: #7D8471;
-      --accent-green: #9BB68E;
-      --accent-green-soft: #7C9473;
-      --accent-green-wash: #29301F;
+      --bg: #1E1811;
+      --bg-deep: #171207;
+      --surface: #262016;
+      --surface-raised: #2D261B;
+      --ink: #F1E9DB;
+      --ink-soft: #C7B99E;
+      --ink-faint: #8B7C63;
+      --accent-green-deep: #E4C9A3;
+      --accent-green: #C9A57C;
+      --accent-green-soft: #A9855E;
+      --accent-green-wash: #332A1D;
       --accent-rust: #D99468;
       --accent-rust-wash: #362A20;
       --accent-mustard: #D9AF66;
       --accent-mustard-wash: #362B19;
-      --border: #343829;
-      --border-soft: #2A2E20;
+      --border: #3D3324;
+      --border-soft: #302A1E;
       --danger: #E08262;
       --shadow: 0 1px 2px rgba(0,0,0,0.2), 0 10px 28px rgba(0,0,0,0.3);
     }
   }
   :root[data-theme="dark"] {
-    --bg: #1A1D16;
-    --surface: #21251C;
-    --surface-raised: #262A1F;
-    --ink: #EBEDE3;
-    --ink-soft: #BAC0AD;
-    --ink-faint: #7D8471;
-    --accent-green: #9BB68E;
-    --accent-green-soft: #7C9473;
-    --accent-green-wash: #29301F;
+    --bg: #1E1811;
+    --bg-deep: #171207;
+    --surface: #262016;
+    --surface-raised: #2D261B;
+    --ink: #F1E9DB;
+    --ink-soft: #C7B99E;
+    --ink-faint: #8B7C63;
+    --accent-green-deep: #E4C9A3;
+    --accent-green: #C9A57C;
+    --accent-green-soft: #A9855E;
+    --accent-green-wash: #332A1D;
     --accent-rust: #D99468;
     --accent-rust-wash: #362A20;
     --accent-mustard: #D9AF66;
     --accent-mustard-wash: #362B19;
-    --border: #343829;
-    --border-soft: #2A2E20;
+    --border: #3D3324;
+    --border-soft: #302A1E;
     --danger: #E08262;
     --shadow: 0 1px 2px rgba(0,0,0,0.2), 0 10px 28px rgba(0,0,0,0.3);
   }
@@ -77,7 +83,7 @@
   html { scroll-padding-top: env(safe-area-inset-top, 0px); }
   body {
     margin: 0;
-    background: var(--bg);
+    background: radial-gradient(ellipse 1200px 800px at 15% -10%, var(--bg-deep) 0%, var(--bg) 45%) fixed;
     color: var(--ink);
     font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -102,11 +108,11 @@
     border-bottom: 1px solid var(--border-soft);
   }
   header.top .greet { position: relative; }
-  header.top .site-wordmark {
+  .site-wordmark {
     font-family: 'Alex Brush', cursive;
     font-size: 44px;
     line-height: 1;
-    color: var(--accent-rust);
+    color: var(--accent-green);
     margin: 0 0 2px;
   }
   header.top .greet h1 {
@@ -118,15 +124,15 @@
     position: relative;
     display: inline-block;
   }
-  header.top .greet-stroke {
+  .greet-stroke {
     display: block;
     width: 66px;
     height: 8px;
     margin-top: 1px;
   }
-  header.top .greet-stroke path {
+  .greet-stroke path {
     fill: none;
-    stroke: var(--accent-rust);
+    stroke: var(--accent-green);
     stroke-width: 2.5;
     stroke-linecap: round;
     opacity: 0.55;
@@ -239,8 +245,8 @@
   .icon-meal { background: var(--accent-rust-wash); color: var(--accent-rust); }
   .icon-workout { background: var(--accent-green-wash); color: var(--accent-green); }
   .icon-content { background: var(--accent-mustard-wash); color: var(--accent-mustard); }
-  .icon-hobby { background: var(--accent-green-wash); color: var(--accent-green); }
-  .icon-cal { background: var(--accent-rust-wash); color: var(--accent-rust); }
+  .icon-hobby { background: var(--accent-green-wash); color: var(--accent-green-soft); }
+  .icon-cal { background: var(--accent-green-wash); color: var(--accent-green); }
 
   .drag-handle { cursor: grab; color: var(--ink-faint); font-size: 14px; padding: 2px 4px; }
   .drag-handle:active { cursor: grabbing; }
@@ -390,10 +396,33 @@
   .today-done-toggle input { width: auto; }
   .today-event-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; }
 
-  .vision-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+  #homeView {
+    min-height: 100vh;
+    width: 100%;
+    background: radial-gradient(ellipse 1400px 900px at 50% -15%, var(--bg-deep) 0%, var(--bg) 50%) fixed;
+  }
+  .home-nav {
+    display: flex; justify-content: flex-end; gap: 8px;
+    padding: calc(20px + env(safe-area-inset-top, 0px)) 24px 0;
+  }
+  .home-nav-btn {
+    font-family: 'Nunito Sans', sans-serif; font-size: 12.5px; font-weight: 600;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 9px 16px; cursor: pointer; color: var(--ink); box-shadow: var(--shadow);
+  }
+  .home-nav-btn:hover { background: var(--border-soft); }
+  .home-hero { text-align: center; padding: 30px 20px 8px; }
+  .home-wordmark { font-size: 56px; margin: 0 auto 4px; }
+  .home-hero .greet-stroke { margin: 0 auto 10px; width: 100px; height: 12px; }
+  .home-hero-sub { font-size: 14px; color: var(--ink-soft); margin: 0; }
+  .home-board-head {
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    margin: 6px 0 22px; flex-wrap: wrap;
+  }
+  .home-board-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 15px; color: var(--ink-soft); letter-spacing: 0.02em; }
   .vision-upload-btn { cursor: pointer; }
-  .vision-board { columns: 3 220px; column-gap: 14px; }
-  @media (max-width: 700px) { .vision-board { columns: 2 150px; } }
+  .vision-board { columns: 3 220px; column-gap: 14px; padding: 0 28px 60px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 700px) { .vision-board { columns: 2 150px; padding: 0 16px 50px; } }
   .vision-item {
     position: relative; break-inside: avoid; margin-bottom: 14px;
     border-radius: 16px; overflow: hidden; border: 1px solid var(--border);
@@ -407,7 +436,7 @@
   .vision-remove:hover { background: var(--danger); }
   .vision-empty {
     border: 2px dashed var(--border); border-radius: var(--radius);
-    padding: 70px 20px; text-align: center; color: var(--ink-faint);
+    margin: 0 28px 60px; padding: 90px 20px; text-align: center; color: var(--ink-faint);
   }
   .day-label { font-size: 12px; font-weight: 600; padding-top: 10px !important; white-space: nowrap; }
 
@@ -472,8 +501,10 @@
 </head>
 <body>
 
-<div class="wrap">
-  <header class="top">
+<div id="homeView"></div>
+
+<div class="wrap" id="mainWrap" style="display:none;">
+  <header class="top" id="siteHeader">
     <div class="greet">
       <div class="site-wordmark">Jataya's Dashboard</div>
       <h1 id="greetTitle">Studio</h1>
@@ -492,7 +523,6 @@
     <button class="tab-btn" data-tab="meals">🍽 Meal Planning</button>
   </div>
 
-  <div id="homeView"></div>
   <div id="todayView" style="display:none;"></div>
   <div id="dashboardView" style="display:none;">
     <div class="grid" id="grid"></div>
@@ -516,7 +546,7 @@
     workout: { title: 'Workout', icon: '🏋', iconClass: 'icon-workout', span: 1, accentVar: '--accent-green' },
     content: { title: 'Content Creation', icon: '🎬', iconClass: 'icon-content', span: 1, accentVar: '--accent-mustard' },
     hobbies: { title: 'Hobbies', icon: '✎', iconClass: 'icon-hobby', span: 1, accentVar: '--accent-green-soft' },
-    calendar: { title: 'My Calendar', icon: '◐', iconClass: 'icon-cal', span: 2, accentVar: '--accent-rust' },
+    calendar: { title: 'My Calendar', icon: '◐', iconClass: 'icon-cal', span: 2, accentVar: '--accent-green' },
   };
   const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const MEALS_OF_DAY = ['Breakfast','Lunch','Dinner'];
@@ -1599,9 +1629,23 @@
           <button class="vision-remove" data-remove-vision="${img.id}" title="Remove">✕</button>
         </div>`).join('');
 
+    const h = new Date().getHours();
+    const period = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+    const dateLabel = new Date().toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
+
     container.innerHTML = `
-      <div class="vision-head">
-        <h2 style="margin:0;">Vision Board</h2>
+      <div class="home-nav">
+        <button class="home-nav-btn" data-nav="today">Today</button>
+        <button class="home-nav-btn" data-nav="dashboard">Dashboard</button>
+        <button class="home-nav-btn" data-nav="meals">🍽 Meal Planning</button>
+      </div>
+      <div class="home-hero">
+        <div class="site-wordmark home-wordmark">Jataya's Dashboard</div>
+        <svg class="greet-stroke" viewBox="0 0 92 10" aria-hidden="true"><path d="M2 6.5C18 3 34 2 46 5C58 8 74 7 90 3.5"/></svg>
+        <p class="home-hero-sub">Good ${period} · ${dateLabel}</p>
+      </div>
+      <div class="home-board-head">
+        <span class="home-board-title">Vision Board</span>
         <label class="btn btn-primary vision-upload-btn">+ Add images<input type="file" accept="image/*" multiple id="visionUploadInput" style="display:none;"></label>
       </div>
       ${board.length
@@ -1612,6 +1656,9 @@
            </div>`}
     `;
 
+    container.querySelectorAll('[data-nav]').forEach(btn=>{
+      btn.addEventListener('click', ()=> switchTab(btn.dataset.nav));
+    });
     container.querySelectorAll('[data-lightbox-src]').forEach(img=>{
       img.addEventListener('click', ()=> openImageLightbox(img.dataset.lightboxSrc, img.dataset.lightboxCaption||''));
     });
@@ -1704,12 +1751,14 @@
   function switchTab(name){
     document.querySelectorAll('.tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===name));
     document.getElementById('homeView').style.display = name==='home' ? '' : 'none';
+    document.getElementById('mainWrap').style.display = name==='home' ? 'none' : '';
     document.getElementById('todayView').style.display = name==='today' ? '' : 'none';
     document.getElementById('dashboardView').style.display = name==='dashboard' ? '' : 'none';
     document.getElementById('mealsView').style.display = name==='meals' ? '' : 'none';
     if(name==='home') renderHomeView(document.getElementById('homeView'));
     if(name==='today') renderTodayView(document.getElementById('todayView'));
     if(name==='meals') renderMealsModal(document.getElementById('mealsView'));
+    if(name!=='home') window.scrollTo(0,0);
   }
   document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> switchTab(btn.dataset.tab));
