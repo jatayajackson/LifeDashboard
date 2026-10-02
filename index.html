@@ -428,16 +428,28 @@
   .home-nav-btn:hover { color: var(--ink); }
   .home-nav-btn:hover::after { transform: scaleX(1); }
   .vision-board {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    grid-auto-rows: auto;
-    gap: 0;
+    overflow: hidden;
     width: 100%;
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+  .vision-board:hover .vision-track { animation-play-state: paused; }
+  .vision-track {
+    display: flex;
+    width: max-content;
+    animation: visionMarquee 38s linear infinite;
+  }
+  @keyframes visionMarquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
   }
   .vision-item {
     position: relative;
+    flex-shrink: 0;
+    height: 62vh;
   }
-  .vision-item img { width: 100%; height: auto; display: block; cursor: pointer; }
+  .vision-item img { height: 100%; width: auto; display: block; cursor: pointer; }
   .vision-item-controls {
     position: absolute; top: 12px; right: 12px; display: flex; gap: 6px;
     opacity: 0; transition: opacity .15s ease;
@@ -455,7 +467,9 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     border: 2px dashed var(--border); border-radius: var(--radius);
     margin: 0 24px 24px; padding: 40px 20px; text-align: center; color: var(--ink-faint);
+    cursor: pointer; transition: border-color .15s ease, color .15s ease;
   }
+  .vision-empty:hover { border-color: var(--accent-green-soft); color: var(--ink-soft); }
   .scroll-hint {
     flex-shrink: 0;
     margin-top: auto;
@@ -1790,14 +1804,18 @@
   // ---------- Init ----------
   function renderHomeView(container){
     const board = state.visionBoard;
-    const boardHtml = board.map(img => `
+    const visionItemHtml = img => `
         <div class="vision-item">
           <img src="${img.src}" data-lightbox-src="${img.src}" data-lightbox-caption="${escapeHtml(img.caption||'')}" alt="${escapeHtml(img.caption||'')}">
           <div class="vision-item-controls">
             <label class="vision-replace" title="Replace with a sharper version">⟳<input type="file" accept="image/*" data-replace-vision="${img.id}" style="display:none;"></label>
             <button class="vision-remove" data-remove-vision="${img.id}" title="Remove">✕</button>
           </div>
-        </div>`).join('');
+        </div>`;
+    // Duplicate the set so the strip can loop seamlessly (translateX(-50%) lands exactly
+    // back where it started). Harmless that ids repeat in the DOM — both copies act on
+    // the same underlying entry.
+    const boardHtml = [...board, ...board].map(visionItemHtml).join('');
 
     const h = new Date().getHours();
     const period = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
@@ -1815,11 +1833,12 @@
           <button class="home-nav-btn" data-nav="meals">Meal Planning</button>
         </div>
         ${board.length
-          ? `<div class="vision-board" id="visionBoardGrid">${boardHtml}</div>`
-          : `<div class="vision-empty">
+          ? `<div class="vision-board" id="visionBoardGrid"><div class="vision-track">${boardHtml}</div></div>`
+          : `<label class="vision-empty">
                <p style="font-family:'Playfair Display',serif; font-size:18px; margin:0 0 6px;">Your vision board</p>
-               <p class="empty-hint" style="font-size:12.5px; margin:0;">Whatever you want to see every time you open this.</p>
-             </div>`}
+               <p class="empty-hint" style="font-size:12.5px; margin:0;">Click to add photos — whatever you want to see every time you open this.</p>
+               <input type="file" accept="image/*" multiple id="visionEmptyUploadInput" style="display:none;">
+             </label>`}
         <button class="scroll-hint" id="scrollHintBtn" aria-label="Scroll down to see today">
           <span>Your day at a glance</span>
           <svg width="18" height="10" viewBox="0 0 18 10" fill="none"><path d="M1 1L9 9L17 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1860,6 +1879,22 @@
         } catch(err){ showToast('Could not read that image'); }
       });
     });
+    const emptyUploadInput = container.querySelector('#visionEmptyUploadInput');
+    if(emptyUploadInput){
+      emptyUploadInput.addEventListener('change', async ()=>{
+        const files = Array.from(emptyUploadInput.files || []);
+        if(files.length===0) return;
+        for(const file of files){
+          try{
+            const dataUrl = await compressImageFile(file, 1800, 0.82);
+            state.visionBoard.push({ id: uid(), src: dataUrl, caption: '', createdAt: Date.now() });
+          } catch(e){ /* skip a file that fails to read */ }
+        }
+        saveDoc('dashboard/visionBoard', state.visionBoard);
+        renderHomeView(container);
+        showToast('Added to your vision board');
+      });
+    }
     container.querySelector('#scrollHintBtn').addEventListener('click', ()=>{
       container.querySelector('#homeTodaySection').scrollIntoView({ behavior:'smooth' });
     });
