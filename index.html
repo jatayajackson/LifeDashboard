@@ -438,14 +438,18 @@
     position: relative;
   }
   .vision-item img { width: 100%; height: auto; display: block; cursor: pointer; }
-  .vision-remove {
-    position: absolute; top: 12px; right: 12px; width: 26px; height: 26px; border-radius: 50%;
-    background: rgba(20,18,13,0.45); color: #fff; border: none; cursor: pointer; font-size: 11px;
-    display: flex; align-items: center; justify-content: center; padding: 0;
+  .vision-item-controls {
+    position: absolute; top: 12px; right: 12px; display: flex; gap: 6px;
     opacity: 0; transition: opacity .15s ease;
   }
-  .vision-item:hover .vision-remove { opacity: 1; }
+  .vision-item:hover .vision-item-controls { opacity: 1; }
+  .vision-remove, .vision-replace {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(20,18,13,0.45); color: #fff; border: none; cursor: pointer; font-size: 12px;
+    display: flex; align-items: center; justify-content: center; padding: 0;
+  }
   .vision-remove:hover { background: var(--danger); }
+  .vision-replace:hover { background: var(--accent-green); }
   .vision-empty {
     flex: 1;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -1789,7 +1793,10 @@
     const boardHtml = board.map(img => `
         <div class="vision-item">
           <img src="${img.src}" data-lightbox-src="${img.src}" data-lightbox-caption="${escapeHtml(img.caption||'')}" alt="${escapeHtml(img.caption||'')}">
-          <button class="vision-remove" data-remove-vision="${img.id}" title="Remove">✕</button>
+          <div class="vision-item-controls">
+            <label class="vision-replace" title="Replace with a sharper version">⟳<input type="file" accept="image/*" data-replace-vision="${img.id}" style="display:none;"></label>
+            <button class="vision-remove" data-remove-vision="${img.id}" title="Remove">✕</button>
+          </div>
         </div>`).join('');
 
     const h = new Date().getHours();
@@ -1834,6 +1841,23 @@
         state.visionBoard = state.visionBoard.filter(v=>v.id!==id);
         saveDoc('dashboard/visionBoard', state.visionBoard);
         renderHomeView(container);
+      });
+    });
+    container.querySelectorAll('[data-replace-vision]').forEach(input=>{
+      input.addEventListener('click', (e)=> e.stopPropagation());
+      input.addEventListener('change', async (e)=>{
+        e.stopPropagation();
+        const file = input.files && input.files[0];
+        if(!file) return;
+        const id = input.dataset.replaceVision;
+        try{
+          const dataUrl = await compressImageFile(file, 1800, 0.82);
+          const entry = state.visionBoard.find(v=>v.id===id);
+          if(entry) entry.src = dataUrl;
+          saveDoc('dashboard/visionBoard', state.visionBoard);
+          renderHomeView(container);
+          showToast('Updated — much sharper now');
+        } catch(err){ showToast('Could not read that image'); }
       });
     });
     container.querySelector('#scrollHintBtn').addEventListener('click', ()=>{
