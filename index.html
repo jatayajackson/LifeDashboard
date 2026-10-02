@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mrs+Saint+Delafield&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
     --bg: #DCCAA7;
@@ -427,17 +428,16 @@
   .home-nav-btn:hover { color: var(--ink); }
   .home-nav-btn:hover::after { transform: scaleX(1); }
   .vision-board {
-    flex: 1;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    grid-auto-rows: minmax(320px, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-auto-rows: auto;
     gap: 0;
     width: 100%;
   }
   .vision-item {
     position: relative;
   }
-  .vision-item img { width: 100%; height: 100%; display: block; object-fit: cover; cursor: pointer; }
+  .vision-item img { width: 100%; height: auto; display: block; cursor: pointer; }
   .vision-remove {
     position: absolute; top: 12px; right: 12px; width: 26px; height: 26px; border-radius: 50%;
     background: rgba(20,18,13,0.45); color: #fff; border: none; cursor: pointer; font-size: 11px;
@@ -454,6 +454,7 @@
   }
   .scroll-hint {
     flex-shrink: 0;
+    margin-top: auto;
     display: flex; flex-direction: column; align-items: center; gap: 4px;
     background: none; border: none; cursor: pointer; color: var(--ink-faint);
     font-family: 'Nunito Sans', sans-serif; font-size: 11.5px; font-weight: 600;
@@ -654,6 +655,16 @@
   const SB_ROW = 'life-dashboard';
   const LS_KEY = 'life_dashboard_state_v1';
 
+  // --- Google Calendar (client-side OAuth — read-only, view-time only) ---
+  // Replace with the Client ID from your Google Cloud OAuth credentials.
+  // This value is meant to be public (it identifies the app, not a secret).
+  const GOOGLE_CLIENT_ID = 'YOUR_CLIENT_ID_HERE.apps.googleusercontent.com';
+  const GOOGLE_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
+  const GCAL_TOKEN_KEY = 'gcal_access_token_v1';
+  let gcalTokenClient = null;
+  let gcalAccessToken = null;
+  let gcalTokenExpiry = 0; // epoch ms
+
   const DEFAULT_STATE = {
     order: ['meals','workout','content','hobbies','calendar'],
     meals: {}, weekRecipes: {}, customRecipes: [], groceries: [],
@@ -728,6 +739,89 @@
       reader.readAsDataURL(file);
     });
   }
+
+  // --- Google Calendar helpers ---
+  function isGcalConfigured(){
+    return GOOGLE_CLIENT_ID && !GOOGLE_CLIENT_ID.startsWith('YOUR_CLIENT_ID');
+  }
+  function isGcalConnected(){
+    return !!gcalAccessToken && Date.now() < gcalTokenExpiry;
+  }
+  function restoreGcalSession(){
+    try{
+      const raw = sessionStorage.getItem(GCAL_TOKEN_KEY);
+      if(!raw) return;
+      const saved = JSON.parse(raw);
+      if(saved.expiry > Date.now()){
+        gcalAccessToken = saved.token;
+        gcalTokenExpiry = saved.expiry;
+      }
+    } catch(e){ /* ignore */ }
+  }
+  function initGcalTokenClient(){
+    if(!isGcalConfigured() || typeof google === 'undefined' || !google.accounts) return false;
+    if(gcalTokenClient) return true;
+    gcalTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: GOOGLE_SCOPE,
+      callback: () => {}, // overridden per-call below
+    });
+    return true;
+  }
+  function connectGoogleCalendar(){
+    return new Promise((resolve, reject)=>{
+      if(!isGcalConfigured()){
+        reject(new Error('Google Calendar isn\'t set up yet — add your Client ID in the code first.'));
+        return;
+      }
+      if(!initGcalTokenClient()){
+        reject(new Error('Google sign-in isn\'t ready yet — try again in a moment.'));
+        return;
+      }
+      gcalTokenClient.callback = (resp) => {
+        if(resp.error){ reject(new Error(resp.error)); return; }
+        gcalAccessToken = resp.access_token;
+        gcalTokenExpiry = Date.now() + (resp.expires_in ? resp.expires_in*1000 : 3500*1000);
+        try{ sessionStorage.setItem(GCAL_TOKEN_KEY, JSON.stringify({ token: gcalAccessToken, expiry: gcalTokenExpiry })); } catch(e){}
+        resolve();
+      };
+      gcalTokenClient.requestAccessToken({ prompt: isGcalConnected() ? '' : 'consent' });
+    });
+  }
+  async function fetchGoogleEvents(startISO, endISO){
+    if(!isGcalConnected()) return [];
+    try{
+      const params = new URLSearchParams({
+        timeMin: new Date(startISO+'T00:00:00').toISOString(),
+        timeMax: new Date(endISO+'T23:59:59').toISOString(),
+        singleEvents: 'true',
+        orderBy: 'startTime',
+        maxResults: '50',
+      });
+      const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?'+params.toString(), {
+        headers: { Authorization: 'Bearer '+gcalAccessToken }
+      });
+      if(!res.ok){
+        if(res.status===401){ gcalAccessToken=null; gcalTokenExpiry=0; try{ sessionStorage.removeItem(GCAL_TOKEN_KEY); }catch(e){} }
+        return [];
+      }
+      const json = await res.json();
+      return (json.items||[]).map(ev=>{
+        const startDate = ev.start?.dateTime || ev.start?.date;
+        const isAllDay = !ev.start?.dateTime;
+        const d = new Date(startDate);
+        return {
+          id: 'g_'+ev.id,
+          title: ev.summary || '(untitled event)',
+          date: isoDate(d),
+          time: isAllDay ? '' : d.toTimeString().slice(0,5),
+          notes: ev.location || '',
+          source: 'google',
+        };
+      });
+    } catch(e){ return []; }
+  }
+
   function showToast(msg){
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -1594,7 +1688,19 @@
 
   // ---------- Calendar ----------
   function renderCalendarModal(body){
-    let html = `<div class="banner show" style="margin-bottom:16px;">Google Calendar sync isn't connected yet — once it is, your school and personal events will appear here alongside these. For now, add your own below.</div>`;
+    let googleEvents = [];
+    const connected = isGcalConnected();
+    const configured = isGcalConfigured();
+
+    let html = '';
+    if(!configured){
+      html += `<div class="banner show" style="margin-bottom:16px;">Google Calendar isn't set up yet — this needs a one-time Google Cloud setup step first. Once that's done, a Client ID gets added to the code and this connects for real.</div>`;
+    } else {
+      html += `<div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+        <button class="btn ${connected ? 'btn-ghost' : 'btn-primary'}" id="gcalConnectBtn">${connected ? '✓ Google Calendar connected' : 'Connect Google Calendar'}</button>
+        <span style="font-size:11.5px; color:var(--ink-faint);">${connected ? 'Showing your next 30 days' : 'Read-only — nothing here is ever changed on your calendar'}</span>
+      </div>`;
+    }
     html += `<div class="section-label">Add an event</div>
       <div class="event-form">
         <input type="text" id="evTitle" placeholder="Title" class="full">
@@ -1607,19 +1713,42 @@
     body.innerHTML = html;
     renderEvents();
     body.querySelector('#addEventBtn').addEventListener('click', addEvent);
+    const connectBtn = body.querySelector('#gcalConnectBtn');
+    if(connectBtn){
+      connectBtn.addEventListener('click', async ()=>{
+        connectBtn.textContent = 'Connecting…';
+        try{
+          await connectGoogleCalendar();
+          showToast('Google Calendar connected');
+          renderCalendarModal(body); // full re-render to flip button state + load events
+        } catch(e){
+          showToast(e.message || 'Could not connect');
+          connectBtn.textContent = 'Connect Google Calendar';
+        }
+      });
+    }
+    if(connected){
+      const today = new Date();
+      const in30 = new Date(); in30.setDate(today.getDate()+30);
+      fetchGoogleEvents(isoDate(today), isoDate(in30)).then(events=>{
+        googleEvents = events;
+        renderEvents();
+      });
+    }
 
     function renderEvents(){
       const list = body.querySelector('#eventsList');
-      const upcoming = state.events.filter(e=> new Date(e.date) >= new Date(new Date().toDateString()));
-      if(upcoming.length===0){ list.innerHTML = `<p class="empty-state">No upcoming events yet.</p>`; return; }
-      list.innerHTML = upcoming.map(e=>`
+      const manual = state.events.filter(e=> new Date(e.date) >= new Date(new Date().toDateString()));
+      const combined = [...manual, ...googleEvents].sort((a,b)=> new Date(a.date+'T'+(a.time||'00:00')) - new Date(b.date+'T'+(b.time||'00:00')));
+      if(combined.length===0){ list.innerHTML = `<p class="empty-state">No upcoming events yet.</p>`; return; }
+      list.innerHTML = combined.map(e=>`
         <div class="event-row" data-id="${e.id}">
           <div class="event-date-badge">${fmtDateShort(e.date)}${e.time ? ' · '+fmtTime(e.time) : ''}</div>
           <div class="event-info">
-            <strong>${escapeHtml(e.title)}</strong>
+            <strong>${escapeHtml(e.title)}</strong> ${e.source==='google' ? '<span class="pill">Google</span>' : ''}
             ${e.notes ? `<p>${escapeHtml(e.notes)}</p>` : ''}
           </div>
-          <button class="btn-danger" data-del-event="${e.id}">Remove</button>
+          ${e.source==='google' ? '' : `<button class="btn-danger" data-del-event="${e.id}">Remove</button>`}
         </div>`).join('');
       list.querySelectorAll('[data-del-event]').forEach(btn=>{
         btn.addEventListener('click', ()=>{
@@ -1738,9 +1867,11 @@
     const wDone = !!state.workoutLog[today];
 
     const todaysEvents = state.events.filter(e=> e.date === todayISO);
-    const eventsHtml = todaysEvents.length
-      ? todaysEvents.map(e=>`<div class="today-event-row">${e.time ? `<span class="pill">${fmtTime(e.time)}</span>` : ''}<span>${escapeHtml(e.title)}</span></div>`).join('')
-      : `<p class="empty-hint" style="font-size:12.5px;">Nothing on your calendar today.</p>`;
+    function eventsListHtml(events){
+      return events.length
+        ? events.map(e=>`<div class="today-event-row">${e.time ? `<span class="pill">${fmtTime(e.time)}</span>` : ''}<span>${escapeHtml(e.title)}</span>${e.source==='google' ? ' <span class=\"pill\">Google</span>' : ''}</div>`).join('')
+        : `<p class="empty-hint" style="font-size:12.5px;">Nothing on your calendar today.</p>`;
+    }
 
     container.innerHTML = `
       <h1 class="display" style="font-size:26px; font-weight:450; margin:0 0 2px;">Today</h1>
@@ -1757,10 +1888,17 @@
         </div>
         <div class="today-card">
           <div class="today-card-head"><span class="card-icon icon-cal">◐</span><strong>Calendar</strong><button class="btn btn-ghost today-link" id="todayJumpCalendar">Open →</button></div>
-          ${eventsHtml}
+          <div id="todayEventsList">${eventsListHtml(todaysEvents)}</div>
         </div>
       </div>
     `;
+
+    if(isGcalConnected()){
+      fetchGoogleEvents(todayISO, todayISO).then(gEvents=>{
+        const listEl = container.querySelector('#todayEventsList');
+        if(listEl) listEl.innerHTML = eventsListHtml([...todaysEvents, ...gEvents]);
+      });
+    }
 
     container.querySelectorAll('[data-lightbox-src]').forEach(img=>{
       img.addEventListener('click', ()=> openImageLightbox(img.dataset.lightboxSrc, img.dataset.lightboxCaption||''));
@@ -1793,6 +1931,7 @@
   });
 
   greet();
+  restoreGcalSession();
   renderGrid();
   renderHomeView(document.getElementById('homeView'));
   load();
