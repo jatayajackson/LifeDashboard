@@ -248,6 +248,7 @@
   .icon-content { background: var(--accent-mustard-wash); color: var(--accent-mustard); }
   .icon-hobby { background: var(--accent-green-wash); color: var(--accent-green-soft); }
   .icon-cal { background: var(--accent-green-wash); color: var(--accent-green); }
+  .icon-creative { background: var(--accent-green-wash); color: var(--accent-green-deep); }
 
   .drag-handle { cursor: grab; color: var(--ink-faint); font-size: 14px; padding: 2px 4px; }
   .drag-handle:active { cursor: grabbing; }
@@ -434,7 +435,9 @@
     display: flex;
     align-items: center;
   }
-  .vision-board:hover .vision-track { animation-play-state: paused; }
+  @media (hover: hover) {
+    .vision-board:hover .vision-track { animation-play-state: paused; }
+  }
   .vision-track {
     display: flex;
     width: max-content;
@@ -600,6 +603,7 @@
     content: { title: 'Content Creation', icon: '🎬', iconClass: 'icon-content', span: 1, accentVar: '--accent-mustard' },
     hobbies: { title: 'Hobbies', icon: '✎', iconClass: 'icon-hobby', span: 1, accentVar: '--accent-green-soft' },
     calendar: { title: 'My Calendar', icon: '◐', iconClass: 'icon-cal', span: 2, accentVar: '--accent-green' },
+    creative: { title: 'Creative Ventures', icon: '🎨', iconClass: 'icon-creative', span: 1, accentVar: '--accent-green-deep' },
   };
   const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const MEALS_OF_DAY = ['Breakfast','Lunch','Dinner'];
@@ -652,7 +656,7 @@
   const PANTRY_NOTE = 'olive oil, butter, garlic, salt & pepper, and other basic pantry staples';
 
   let state = {
-    order: ['meals','workout','content','hobbies','calendar'],
+    order: ['meals','workout','content','hobbies','calendar','creative'],
     meals: {},          // { Monday: {Breakfast:'', Lunch:'', Dinner:''}, ... }
     weekRecipes: {},     // { Monday: {Breakfast: {src:'pool'|'custom', id}, ...}, ... }
     customRecipes: [],   // [{id,name,mealType,ingredients:[{item,qty,unit,pantry}],createdAt}]
@@ -666,6 +670,7 @@
     currentWeekStart: null,
     weekHistory: [],
     visionBoard: [],      // [{id, src, caption, createdAt}]
+    creative: [],         // [{id,title,status,notes,createdAt}]
   };
 
   const SB_URL = 'https://zijgfuxocscrepwwdynp.supabase.co';
@@ -684,13 +689,14 @@
   let gcalTokenExpiry = 0; // epoch ms
 
   const DEFAULT_STATE = {
-    order: ['meals','workout','content','hobbies','calendar'],
+    order: ['meals','workout','content','hobbies','calendar','creative'],
     meals: {}, weekRecipes: {}, customRecipes: [], groceries: [],
     workoutPlan: {}, workoutLog: {}, content: [], hobbies: [], events: [],
     mealImages: {},      // { Monday: { Breakfast: 'data:image/jpeg;base64,...' }, ... }
     currentWeekStart: null,  // ISO date (Monday) the live meals/weekRecipes/mealImages represent
     weekHistory: [],     // [{ weekStart, meals, weekRecipes, mealImages, savedAt }, ...] newest first
     visionBoard: [],     // [{id, src, caption, createdAt}]
+    creative: [],        // [{id,title,status,notes,createdAt}]
   };
 
   let dbReady = true; // becomes false only if we had to fall back to local-only storage
@@ -885,6 +891,9 @@
       dbReady = false;
       document.getElementById('offlineBanner').classList.add('show');
     }
+    if(Array.isArray(state.order)){
+      DEFAULT_STATE.order.forEach(key=>{ if(!state.order.includes(key)) state.order.push(key); });
+    }
     lsSet(LS_KEY, JSON.stringify(state));
     ensureCurrentWeekStart();
     setSaveStatus(false);
@@ -998,7 +1007,14 @@
       else {
         body = `<div class="mini-list">` + upcoming.map(e=>`<div class="mini-row"><span>${escapeHtml(e.title)}</span><strong>${fmtDateShort(e.date)}</strong></div>`).join('') + `</div>`;
       }
-      foot = 'Google Calendar sync: not yet connected';
+      foot = isGcalConnected() ? 'Google Calendar connected' : (isGcalConfigured() ? 'Google Calendar: not connected' : 'Google Calendar: not set up yet');
+    } else if(key==='creative'){
+      const counts = { Idea:0, 'In Progress':0, Done:0 };
+      state.creative.forEach(c => counts[c.status] = (counts[c.status]||0)+1);
+      if(state.creative.length===0){ body = `<span class="empty-hint">No creative projects added yet</span>`; }
+      else { body = `<div class="mini-list">` + Object.keys(counts).map(s=>`<div class="mini-row"><span>${s}</span><strong>${counts[s]}</strong></div>`).join('') + `</div>`; }
+      const nextIdea = state.creative.find(c=>c.status==='Idea');
+      foot = nextIdea ? 'Next idea: ' + (nextIdea.title.length>28 ? nextIdea.title.slice(0,28)+'…' : nextIdea.title) : `${state.creative.length} items total`;
     }
     return `
       <div class="card-top">
@@ -1036,6 +1052,7 @@
     else if(key==='content') renderContentModal(body);
     else if(key==='hobbies') renderHobbiesModal(body);
     else if(key==='calendar') renderCalendarModal(body);
+    else if(key==='creative') renderCreativeModal(body);
   }
   function overlayClickClose(e){ if(e.target.id==='overlay') closeModal(); }
   function closeModal(){
@@ -1650,6 +1667,77 @@
       const item = { id: uid(), title, status:'Idea', notes:'', createdAt: Date.now() };
       state.content.push(item);
       saveDoc('content/'+item.id, { title:item.title, status:item.status, notes:item.notes, createdAt:item.createdAt });
+      input.value = '';
+      renderKanbanCards();
+    }
+  }
+
+  // ---------- Creative Ventures (kanban) ----------
+  const CREATIVE_STATUSES = ['Idea','In Progress','Done'];
+  function renderCreativeModal(body){
+    let html = `<div class="kanban">` + CREATIVE_STATUSES.map(status=>`
+      <div class="kanban-col" data-status="${status}">
+        <h4>${status} (${state.creative.filter(c=>c.status===status).length})</h4>
+        <div class="kanban-cards" data-status-list="${status}"></div>
+        ${status==='Idea' ? `<div class="add-row"><input type="text" id="newCreativeInput" placeholder="New idea…"><button class="btn btn-primary" id="addCreativeBtn">Add</button></div>` : ''}
+      </div>`).join('') + `</div>`;
+    body.innerHTML = html;
+    renderKanbanCards();
+
+    body.querySelectorAll('.kanban-col').forEach(col=>{
+      col.addEventListener('dragover', (e)=>{ e.preventDefault(); col.classList.add('drag-over'); });
+      col.addEventListener('dragleave', ()=> col.classList.remove('drag-over'));
+      col.addEventListener('drop', (e)=>{
+        e.preventDefault(); col.classList.remove('drag-over');
+        if(!draggedKanbanCard) return;
+        const item = state.creative.find(c=>c.id===draggedKanbanCard);
+        if(item){
+          item.status = col.dataset.status;
+          saveDoc('creative/'+item.id, { title:item.title, status:item.status, notes:item.notes||'', createdAt:item.createdAt });
+        }
+        draggedKanbanCard = null;
+        renderKanbanCards();
+      });
+    });
+
+    const addBtn = body.querySelector('#addCreativeBtn');
+    if(addBtn){
+      addBtn.addEventListener('click', addCreativeItem);
+      body.querySelector('#newCreativeInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') addCreativeItem(); });
+    }
+
+    function renderKanbanCards(){
+      CREATIVE_STATUSES.forEach(status=>{
+        const list = body.querySelector(`[data-status-list="${status}"]`);
+        const items = state.creative.filter(c=>c.status===status);
+        list.innerHTML = items.map(c=>`
+          <div class="kanban-card" draggable="true" data-id="${c.id}">
+            <div>${escapeHtml(c.title)}</div>
+            ${c.notes ? `<div style="color:var(--ink-faint);font-size:11.5px;margin-top:4px;">${escapeHtml(c.notes)}</div>` : ''}
+            <div style="text-align:right;margin-top:4px;"><button class="btn-danger" data-del-creative="${c.id}">Remove</button></div>
+          </div>`).join('');
+        list.querySelectorAll('.kanban-card').forEach(card=>{
+          card.addEventListener('dragstart', ()=>{ draggedKanbanCard = card.dataset.id; card.classList.add('dragging'); });
+          card.addEventListener('dragend', ()=> card.classList.remove('dragging'));
+        });
+        list.querySelectorAll('[data-del-creative]').forEach(btn=>{
+          btn.addEventListener('click', (e)=>{
+            e.stopPropagation();
+            const id = btn.dataset.delCreative;
+            state.creative = state.creative.filter(c=>c.id!==id);
+            deleteDoc('creative/'+id);
+            renderKanbanCards();
+          });
+        });
+      });
+    }
+    function addCreativeItem(){
+      const input = body.querySelector('#newCreativeInput');
+      const title = input.value.trim();
+      if(!title) return;
+      const item = { id: uid(), title, status:'Idea', notes:'', createdAt: Date.now() };
+      state.creative.push(item);
+      saveDoc('creative/'+item.id, { title:item.title, status:item.status, notes:item.notes, createdAt:item.createdAt });
       input.value = '';
       renderKanbanCards();
     }
