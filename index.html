@@ -197,45 +197,58 @@
   @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
 
   .card {
-    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 20px 20px 18px;
+    padding: 16px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    justify-content: space-between;
     transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
-    min-height: 168px;
+    min-height: 220px;
     position: relative;
     overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    color: #fff;
   }
-  .card::before {
+  .card::after {
     content: '';
-    position: absolute; top: 0; left: 20px; right: 20px; height: 3px;
-    border-radius: 0 0 3px 3px;
-    background: var(--card-accent, var(--accent-green-soft));
-    opacity: 0.55;
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(20,16,10,0.72) 0%, rgba(20,16,10,0.28) 45%, rgba(20,16,10,0.05) 70%);
+    z-index: 1;
   }
   .card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
-  .card:hover::before { opacity: 0.9; }
   .card.dragging { opacity: 0.4; }
   .card.drag-over { outline: 2px dashed var(--accent-green-soft); outline-offset: 3px; }
   .card.span-2 { grid-column: span 2; }
   @media (max-width: 600px) { .card.span-2 { grid-column: span 1; } }
 
-  .card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .tile-top {
+    position: relative; z-index: 2;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  .card-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 15px;
-    font-weight: 600;
+  .tile-bottom {
+    position: relative; z-index: 2;
   }
+  .tile-title {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Playfair Display', serif; font-weight: 600; font-size: 16px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  .tile-stat {
+    font-size: 11.5px; margin-top: 3px; opacity: 0.88;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .tile-photo-btn {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(255,255,255,0.22); backdrop-filter: blur(2px);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; cursor: pointer; opacity: 0; transition: opacity .15s ease;
+  }
+  .card:hover .tile-photo-btn { opacity: 1; }
+  .tile-photo-btn:hover { background: rgba(255,255,255,0.35); }
+
   .card-icon {
     width: 30px; height: 30px;
     border-radius: 50%;
@@ -250,7 +263,7 @@
   .icon-cal { background: var(--accent-green-wash); color: var(--accent-green); }
   .icon-creative { background: var(--accent-green-wash); color: var(--accent-green-deep); }
 
-  .drag-handle { cursor: grab; color: var(--ink-faint); font-size: 14px; padding: 2px 4px; }
+  .drag-handle { cursor: grab; color: #fff; font-size: 14px; padding: 2px 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
   .drag-handle:active { cursor: grabbing; }
 
   .card-body { flex: 1; font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
@@ -671,6 +684,7 @@
     weekHistory: [],
     visionBoard: [],      // [{id, src, caption, createdAt}]
     creative: [],         // [{id,title,status,notes,createdAt}]
+    widgetPhotos: {},     // { meals: 'data:image/jpeg;base64,...', workout: '...', ... } — optional per-card photo
   };
 
   const SB_URL = 'https://zijgfuxocscrepwwdynp.supabase.co';
@@ -697,6 +711,7 @@
     weekHistory: [],     // [{ weekStart, meals, weekRecipes, mealImages, savedAt }, ...] newest first
     visionBoard: [],     // [{id, src, caption, createdAt}]
     creative: [],        // [{id,title,status,notes,createdAt}]
+    widgetPhotos: {},    // { meals: 'data:image/jpeg;base64,...', ... }
   };
 
   let dbReady = true; // becomes false only if we had to fall back to local-only storage
@@ -946,14 +961,32 @@
       if(!def) return;
       const card = document.createElement('div');
       card.className = 'card' + (def.span===2 ? ' span-2' : '');
-      card.style.setProperty('--card-accent', `var(${def.accentVar})`);
+      const photo = state.widgetPhotos[key];
+      card.style.background = photo
+        ? `url('${photo}') center/cover`
+        : `linear-gradient(145deg, var(${def.accentVar}) 0%, var(--bg-deep) 100%)`;
       card.draggable = true;
       card.dataset.key = key;
       card.innerHTML = cardPreviewHtml(key, def);
       card.addEventListener('click', (e)=>{
-        if(e.target.closest('.drag-handle')) return;
+        if(e.target.closest('.drag-handle') || e.target.closest('.tile-photo-btn')) return;
         if(key==='meals') switchTab('meals'); else openModal(key);
       });
+      const photoInput = card.querySelector('[data-widget-photo]');
+      if(photoInput){
+        photoInput.addEventListener('click', (e)=> e.stopPropagation());
+        photoInput.addEventListener('change', async ()=>{
+          const file = photoInput.files && photoInput.files[0];
+          if(!file) return;
+          try{
+            const dataUrl = await compressImageFile(file, 900, 0.8);
+            state.widgetPhotos[key] = dataUrl;
+            saveDoc('dashboard/widgetPhotos', state.widgetPhotos);
+            renderGrid();
+            showToast('Photo updated');
+          } catch(e){ showToast('Could not read that image'); }
+        });
+      }
       card.addEventListener('dragstart', (e)=>{ draggedWidget = key; card.classList.add('dragging'); });
       card.addEventListener('dragend', ()=>{ card.classList.remove('dragging'); document.querySelectorAll('.card').forEach(c=>c.classList.remove('drag-over')); });
       card.addEventListener('dragover', (e)=>{ e.preventDefault(); if(draggedWidget && draggedWidget!==key) card.classList.add('drag-over'); });
@@ -1017,12 +1050,14 @@
       foot = nextIdea ? 'Next idea: ' + (nextIdea.title.length>28 ? nextIdea.title.slice(0,28)+'…' : nextIdea.title) : `${state.creative.length} items total`;
     }
     return `
-      <div class="card-top">
-        <div class="card-title"><span class="card-icon ${def.iconClass}">${def.icon}</span>${def.title}</div>
+      <div class="tile-top">
         <span class="drag-handle" title="Drag to reorder">⠿</span>
+        <label class="tile-photo-btn" title="Change photo">📷<input type="file" accept="image/*" data-widget-photo="${key}" style="display:none;"></label>
       </div>
-      <div class="card-body">${body}</div>
-      <div class="card-foot"><span>${foot}</span><span class="open-link">${key==='meals' ? 'Open tab →' : 'Open →'}</span></div>
+      <div class="tile-bottom">
+        <div class="tile-title">${def.icon} ${def.title}</div>
+        <div class="tile-stat">${foot}</div>
+      </div>
     `;
   }
 
